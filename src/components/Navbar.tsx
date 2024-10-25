@@ -26,5 +26,4 @@ const Navbar = () => {
         </div>
     )
 }
-{/* MINUTO 30:23 */}
 export default Navbar
