@@ -6,33 +6,33 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 const data = [
   {
     name: 'Segunda',
-    clinica: 40,
-    domicilio: 24,
+    Clinica: 40,
+    Domicilio: 24,
   },
   {
     name: 'Terça',
-    clinica: 30,
-    domicilio: 13,
+    Clinica: 30,
+    Domicilio: 13,
   },
   {
     name: 'Quarta',
-    clinica: 20,
-    domicilio: 90,
+    Clinica: 20,
+    Domicilio: 90,
   },
   {
     name: 'Quinta',
-    clinica: 27,
-    domicilio: 39,
+    Clinica: 27,
+    Domicilio: 39,
   },
   {
     name: 'Sexta',
-    clinica: 18,
-    domicilio: 48,
+    Clinica: 18,
+    Domicilio: 48,
   },
   {
     name: 'Sabado',
-    clinica: 23,
-    domicilio: 38,
+    Clinica: 23,
+    Domicilio: 38,
   }
 ];
 
@@ -50,8 +50,8 @@ const AttendanceChart = () => {
                     <YAxis axisLine={false} tickLine={false}/>
                     <Tooltip contentStyle={{borderRadius:"10px", borderColor:"lightgray"}}/>
                     <Legend align='left' verticalAlign='top' wrapperStyle={{paddingTop:"20px", paddingBottom:"40px"}}/>
-                    <Bar dataKey="clinica" stackId="a" fill="#C3EBFA" legendType='circle' />
-                    <Bar dataKey="domicilio" stackId="a" fill="#FAE27C" legendType='circle'radius={[10,10,0,0]}/>
+                    <Bar dataKey="Clinica" stackId="a" fill="#C3EBFA" legendType='circle' />
+                    <Bar dataKey="Domicilio" stackId="a" fill="#FAE27C" legendType='circle'radius={[10,10,0,0]}/>
                 </BarChart>
             </ResponsiveContainer>
         </div>
