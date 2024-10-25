@@ -32,7 +32,7 @@ const data = [
   {
     name: 'Sabado',
     Clinica: 23,
-    Domicilio: 38,
+    Domicilio: 37,
   }
 ];
 
