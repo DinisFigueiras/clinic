@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react';
 import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
 import moment from 'moment'
 import 'moment/locale/pt'
@@ -21,12 +22,12 @@ const BigCalendar = () => {
             events={calendarEvents}
             startAccessor="start"
             endAccessor="end"
-            views={["week","work_week","day","agenda"]}
+            views={["work_week","day"]}
             view={view}
             style={{ height: "98%" }}
             onView={handleOnChangeView}
-            min={new Date(2025,1,0,8,0,0)}
-            max={new Date(2025,1,0,20,0,0)}
+            min={new Date(2025,0,1,8,0,0)}
+            max={new Date(2025,0,1,20,0,0)}
             />
         );
 };
