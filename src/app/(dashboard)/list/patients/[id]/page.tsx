@@ -1,5 +1,6 @@
 import BigCalendar from "@/components/BigCalendar"
 import EventCalendar from "@/components/EventCalendar"
+import FormModal from "@/components/FormModal"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -20,7 +21,27 @@ const SinglePatientPage = () => {
                           className="w-36 h-36 rounded-full object-cover"/>
                         </div>
                         <div className="w-2/3 flex-col justify-between gap-4">
+                        <div className="flex items-center gap-4">
                             <h1 className="text-xl font-semibold">John Doe</h1>
+                            <FormModal
+                                table="patients"
+                                type="update"
+                                data={{
+                                    id: 1,
+                                    username: "Dinis",
+                                    email: "test@gmail.com",
+                                    password: "1234",
+                                    firstName: "Dinis",
+                                    lastName: "Figueiras",
+                                    phone: "931111111",
+                                    address: "Rua de teste",
+                                    bloodType: "A+",
+                                    birthday: "2000-10-18",
+                                    sex: "Male",
+                                    img: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                                }}
+                                />
+                        </div>
                             <p className="text-sm text-gray-500">
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                             </p>
