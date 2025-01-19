@@ -17,7 +17,7 @@ const schema = z.object({
     bloodType: z.string().min(1, {message: "Blood Type is required!"}),
     birthday: z.date({message: "Birthday is required!"}),
     sex: z.enum(["male", "female"], {message: "Sex is required!"}),
-    img: z.instanceof(File, {message: "Image is required!"}),
+    img: z .any() .refine((file) => typeof window !== "undefined" && file instanceof File, { message: "Image is required!", }),
   });
 
 type Inputs = z.infer<typeof schema>;
