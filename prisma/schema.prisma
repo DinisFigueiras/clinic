@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id String @id
+  username String @unique
+}
+
+model Patient {
+  id Int @id
+  email String @unique
+  name String
+  gender Gender
+  date_of_birth DateTime
+  mobile_phone String @unique
+  nif String @unique
+  state_type PatientStat // retired or active
+  attendance_type PatientAttendance // clinic or home
+  observations String?
+  address_line1 String
+  address_line2 String?
+  city String
+  postal_code String
+  Bookings Bookings[]
+}
+model Medication {
+  id Int @id
+  name String @unique
+  stock Int
+  type String
+  dosage String
+  price Decimal
+  supplier String
+  Bookings Bookings[]
+}
+model Bookings {
+  id Int @id @default(autoincrement())
+  patient_id Int
+  patient Patient @relation(fields: [patient_id], references: [id])
+  medication_id Int?
+  medication Medication? @relation(fields: [medication_id], references: [id])
+  attendance_type PatientAttendance
+  booking_StartdateTime DateTime @default(now())
+  booking_EnddateTime DateTime @default(now())
+}
+
+enum PatientStat {
+  Reformado
+  Ativo
+}
+enum PatientAttendance {
+  Clinica
+  Domicilio
+}
+enum Gender {
+  Masculino
+  Feminino
+}

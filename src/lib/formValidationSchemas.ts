@@ -1,0 +1,54 @@
+import { z } from "zod";
+
+export const patientschema = z.object({
+    id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
+    email: z.string().email({message: "Email inválido"}),
+    name: z.string().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(50, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
+    gender: z.enum(["Masculino", "Feminino"], {message: "Genero é obrigatório"}),
+    date_of_birth: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de nascimento é obirgatória" }).transform((val) => new Date(val)),
+    mobile_phone: z.string().min(1, {message: "Telemovel é obrigatório"}).max(9, {message: "Telemovel inválido"}),
+    nif: z.string().min(1, {message: "NIF é Obrigatório"}).max(9, {message: "NIF inválido"}),
+    state_type: z.enum(["Ativo", "Reformado"], {message: "Este campo é obrigatório"}),
+    attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório"}),
+    observations: z.string().optional(),
+    address_line1: z.string().min(1, {message: "Morada é obrigatório!"}),
+    address_line2: z.string().optional(),
+    city: z.string().min(1, {message: "Cidade é obrigatório!"}),
+    postal_code: z.string().min(1, {message: "Código Postal é obrigatório!"})
+  });
+
+export type Patientschema = z.infer<typeof patientschema>;
+
+export const medicationschema = z.object({
+    id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
+    name: z.string().min(1, { message: 'Nome do produto é obrigatório' }),
+    stock: z.coerce.number().min(1, {message: "Stock é obrigatório"}),
+    type:z.string().min(1, {message: "Tipo é obrigatório"}),
+    dosage: z.string().min(1, {message: "Dosagem é obrigatório"}),
+    price: z.coerce.number().min(1, {message: "Preço é obrigatório"}),
+    supplier: z.string().min(1, {message: "Fornecedor é obrigatório"})
+  });
+
+export type Medicationschema = z.infer<typeof medicationschema>;
+
+export const bookingschema = z.object({
+    id: z.coerce.number(),
+    patient_id: z.coerce.number().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(20, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
+    patient: z.string().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(20, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
+    medication_id: z.coerce.number().optional(),
+    medication: z.string().optional(),
+    attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório!"}),
+    booking_StartdateTime:  z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de começo é obirgatória!" }).transform((val) => new Date(val)),
+    booking_EnddateTime: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de fim é obirgatória!" }).transform((val) => new Date(val)),
+  }).superRefine((data, ctx) => {
+    if (data.medication_id && !data.medication) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Nome Produto é obrigatório se Id do Produto estiver preenchido",
+            path: ["medication"],
+        });
+    }
+});
+
+export type Bookingschema = z.infer<typeof bookingschema>;
+
