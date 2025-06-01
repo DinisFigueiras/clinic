@@ -1,4 +1,5 @@
 import FormModal from "@/components/FormModal"
+import FormModal2 from "@/components/FormModal2"
 import Pagination from "@/components/Paginations"
 import Table from "@/components/Table"
 import TableSeacrh from "@/components/TableSearch"
@@ -91,7 +92,7 @@ const renderRow =(item:Patient) => (
                     // <button className="w-7 h-7 flex items-center justify-center rounded-full bg-purple">
                     // <Image src="/delete.png" alt="" width={16} height={16}/>
                     // </button>
-                    <FormModal table="patients" type="delete" id={item.id}/>
+                    <FormModal2 table="patients" type="delete" id={item.id}/>
                 )}
             </div>
         </td>
@@ -99,10 +100,11 @@ const renderRow =(item:Patient) => (
 );
 
 const PatientsListPage = async ({
-    searchParams,
+    searchParams: initialSearchParams,
 }: {
     searchParams: { [key: string]: string | undefined };
 }) => {
+    const searchParams = await initialSearchParams;
     const { page, ...queryParams } = searchParams;
     const p = page ? parseInt(page) : 1;
 
@@ -152,7 +154,7 @@ const PatientsListPage = async ({
                             <Image src="/sort.png" alt="" width={14} height={14} />
                         </button>
                         {role === "admin" && (
-                            <FormModal table="patients" type="create" />
+                            <FormModal2 table="patients" type="create" />
                         )}
                     </div>
                 </div>

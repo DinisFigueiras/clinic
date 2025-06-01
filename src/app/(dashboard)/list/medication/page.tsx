@@ -1,5 +1,5 @@
 import FormContainer from "@/components/FormContainer"
-import FormModal from "@/components/FormModal"
+import FormModal2 from "@/components/FormModal2"
 import Pagination from "@/components/Paginations"
 import Table from "@/components/Table"
 import TableSeacrh from "@/components/TableSearch"
@@ -79,8 +79,8 @@ const renderRow =(item:Medication) => (
         <td className="hidden md:table-cell">{item.supplier}</td>
         <td>
             <div className="flex items-center gap-2">
-                <FormModal table="medication" type="update" data={item}/>
-                <FormModal table="medication" type="delete" id={item.id}/>
+                <FormModal2 table="medication" type="update" data={item}/>
+                <FormModal2 table="medication" type="delete" id={item.id}/>
                 {/* <FormContainer table="medication" type="update" data={item}/>
                 <FormContainer table="medication" type="delete" id={item.id}/> */}
             </div>
@@ -89,11 +89,11 @@ const renderRow =(item:Medication) => (
 );
 
 const MedicationListPage = async ({
-    searchParams,
+    searchParams: initialSearchParams,
 }:{
     searchParams: { [key: string]: string | undefined};
 }) => {
-
+    const searchParams = await initialSearchParams;
     const {page, ...queryParams} = searchParams;
     const p = page ? parseInt(page) : 1;
 
@@ -156,7 +156,7 @@ const MedicationListPage = async ({
                             // <button className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow">
                             // <Image src="/create.png" alt="" width={14} height={14}/>
                             // </button>
-                            <FormModal table="medication" type="create"/>
+                            <FormModal2 table="medication" type="create"/>
                         )}
                     </div>
                 </div>

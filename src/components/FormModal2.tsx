@@ -42,7 +42,6 @@ const FormModal = ({
   type,
   data,
   id,
-  setOpen,
   patients = [], // Default to empty array if undefined
   products = [], // Default to empty array if undefined
 }: {
@@ -50,7 +49,6 @@ const FormModal = ({
   type: "create" | "update" | "delete";
   data?: any;
   id?: number;
-  setOpen: Dispatch<SetStateAction<boolean>>;
   patients?: any[]; // Optional, default to empty array
   products?: any[]; // Optional, default to empty array
 }) => {
@@ -68,7 +66,6 @@ const FormModal = ({
       if (state.success) {
         toast(`Produto apagado!`);
         setOpenState(false); // Close the modal
-        setOpen(false); // Close the modal on parent component
         router.refresh();
       }
     }, [state]);
@@ -89,7 +86,7 @@ const FormModal = ({
         <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center">Apagar</button>
       </form>
     ) : type === "create" || type === "update" ? (
-      forms[table](setOpen, type, data, patients, products) // Pass patients and products to the form
+      forms[table](setOpenState, type, data, patients, products) // Pass patients and products to the form
     ) : (
       "Tabela nao encontrada!"
     );

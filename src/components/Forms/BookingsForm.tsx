@@ -36,7 +36,7 @@ const BookingsForm = ({
     const [searchResults, setSearchResults] = useState<any[]>([]);
 
     const onsubmit = handleSubmit(data =>{
-        console.log(data);
+        console.log("Form submitted with data:", data);
         startTransition(() => {
             formAction(data);
         });
@@ -102,7 +102,7 @@ const BookingsForm = ({
             </div>
             {state.error && <span className="text-red-500">Erro ao criar o produto</span>}
 
-            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Create" : "Update"}</button>
+            <button type="submit" className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Create" : "Update"}</button>
         </form>
     )
 };
