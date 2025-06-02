@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import moment from 'moment-timezone';
-import BigCalendar from "./BigCalendar";
 import CalendarApp from "./BigCalendar2";
 
 const BigCalendarContainer = async () => {

@@ -9,6 +9,7 @@ type InputFieldProps = {
     error?: FieldError;
     valueAsNumber?: boolean;
     inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+    readOnly?: boolean;
 }
 
 

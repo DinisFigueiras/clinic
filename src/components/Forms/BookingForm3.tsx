@@ -60,7 +60,7 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
       setOpen(false);
       router.refresh();
     }
-  }, [state]);
+  }, [state, router, setOpen, type]);
 
   // Filter patients as the user types
   useEffect(() => {
@@ -72,7 +72,7 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
     } else {
       setFilteredPatients(patients);
     }
-  }, [patientSearch]);
+  }, [patientSearch, patients]);
 
   // Filter products as the user types
   useEffect(() => {
@@ -84,7 +84,7 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
     } else {
       setFilteredProducts(products);
     }
-  }, [productSearch]);
+  }, [productSearch, products]);
 
   const handlePatientSelect = (selectedOption: OptionType | null) => {
     setSelectedPatient(selectedOption);

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { patientschema, Patientschema } from "@/lib/formValidationSchemas";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } from "react";
-import { createPatients } from "@/lib/actions";
+import { createPatients, updatePatients } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -27,20 +27,26 @@ const PatientForm = ({
         resolver: zodResolver(patientschema),
         });
 
-    const [state, formAction] = useActionState(createPatients, {
-        success:false, error:false
-    })
+    const [state, formAction] = useActionState(
+            type=== "create" ? createPatients: updatePatients, {
+            success:false, error:false
+        })  
 
     const onsubmit = handleSubmit(data =>{
-        console.log(data);
         startTransition(() => {
             formAction(data);
         });
     })
 
+    const formatDateForInput = (date: string | Date | undefined) => {
+        if (!date) return "";
+        const d = new Date(date); // Parse the date
+        return d.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+    };
+
+    console.log("Patient data:", data);
 
     const router = useRouter();
-    
     useEffect(() => {
 
         if(state.success){
@@ -48,7 +54,7 @@ const PatientForm = ({
             setOpen(false);
             router.refresh();
         }
-    },[state])
+    },[state, router, setOpen, type]);
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onsubmit}>
@@ -59,7 +65,7 @@ const PatientForm = ({
                 <InputField label="Email" inputName="email" defaultValue={data?.email} register={register} error={errors?.email}/>
                 <InputField label="NIF" inputName="nif" type="number" defaultValue={data?.nif} register={register} error={errors?.nif}/>
                 <InputField label="Nome do Paciente" inputName="name" defaultValue={data?.name} register={register} error={errors?.name}/>
-                <InputField label="Telemovel" inputName="mobile_phone" type="number" defaultValue={data?.mobile_phone} register={register} error={errors?.mobile_phone}/>
+                <InputField label="Telemovel" inputName="mobile_phone" type="string" defaultValue={data?.mobile_phone} register={register} error={errors?.mobile_phone}/>
                 <InputField label="Cidade" inputName="city" defaultValue={data?.city} register={register} error={errors?.city}/>
                 <InputField label="Codigo Postal" inputName="postal_code" defaultValue={data?.postal_code} register={register} error={errors?.postal_code}/>
                 <InputField label="Morada" inputName="address_line1" defaultValue={data?.address_line1} register={register} error={errors?.address_line1}/>
@@ -87,11 +93,13 @@ const PatientForm = ({
                 </select>
                 {errors.attendance_type?.message && <p className="text-xs text-red-400">{errors.attendance_type.message.toString()}</p>}
                 </div>
-                <InputField label="Data de Nascimento" inputName="date_of_birth" type="date" defaultValue={data?.date_of_birth} register={register} error={errors?.date_of_birth}/>
+                <InputField label="Data de Nascimento" inputName="date_of_birth" type="date" defaultValue={formatDateForInput(data?.date_of_birth)} register={register} error={errors?.date_of_birth}/>
             </div>
-            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Create" : "Update"}</button>
+            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
+            
         </form>
     )
+    
 };
 
 export default PatientForm

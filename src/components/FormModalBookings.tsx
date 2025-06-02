@@ -4,6 +4,8 @@ import { useState } from "react";
 import Select from "react-select";
 import Image from "next/image";
 import { format } from "date-fns"; // Import date-fns for formatting dates
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const FormModalBookings = ({
   table,
@@ -24,6 +26,9 @@ const FormModalBookings = ({
   const [bookings, setBookings] = useState<any[]>([]); // State to store bookings for the selected patient
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null); // State for the booking to confirm deletion
 
+
+  const router = useRouter();
+
   const attendanceOptions = [
     { value: "Clinica", label: "Clínica" },
     { value: "Domicilio", label: "Domicílio" },
@@ -31,7 +36,7 @@ const FormModalBookings = ({
 
   const fetchBookings = async () => {
     if (!selectedPatient) {
-      alert("Please select a patient.");
+      alert("Selecione um paciente.");
       return;
     }
 
@@ -47,9 +52,10 @@ const FormModalBookings = ({
       const data = await response.json();
       setBookings(data);
     } else {
-      alert("Failed to fetch bookings for the selected patient.");
+      alert("Erro ao tentar ver as marcações deste paciente.");
     }
   };
+
 
   const handleCreate = async () => {
     const response = await fetch(`/api/${table}/create`, {
@@ -67,12 +73,13 @@ const FormModalBookings = ({
     });
 
     if (response.ok) {
-      alert("Marcação Criada com sucesso!");
+      toast("Marcação Criada com sucesso!");
       setOpen(false); // Close the modal
     } else {
       alert("Ocorreu um erro.");
     }
   };
+
 
   const handleDelete = async () => {
     if (!confirmDeleteId) return;
@@ -86,7 +93,7 @@ const FormModalBookings = ({
     });
 
     if (response.ok) {
-      alert("Marcação Apagada com sucesso!");
+      toast(`Marcação apagada com sucesso!`);
       setBookings((prev) => prev.filter((booking) => booking.id !== confirmDeleteId)); // Remove the deleted booking from the list
       setConfirmDeleteId(null); // Reset confirmation state
       
@@ -102,7 +109,7 @@ const FormModalBookings = ({
         className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow-500"
         onClick={() => setOpen(true)}
       >
-        <Image src="/search.png" alt="Manage Bookings" width={16} height={16} />
+      <Image src="/create.png" alt="Manage Bookings" width={16} height={16} />
       </button>
 
       {/* Modal overlay and content */}
@@ -176,7 +183,11 @@ const FormModalBookings = ({
                 <label className="block text-sm font-medium">Escolher Paciente</label>
                 <Select
                   options={patients.map((p) => ({ value: p.id, label: p.name }))}
-                  onChange={(option) => setSelectedPatient(option as { value: any; label: any })}
+                  onChange={(option) => {
+                    setSelectedPatient(option as { value: any; label: any });
+                    setBookings([]);
+                    setConfirmDeleteId(null); 
+                  }}
                 />
                 <button
                   className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
@@ -184,7 +195,7 @@ const FormModalBookings = ({
                 >
                   Ver marcações
                 </button>
-                {bookings.length > 0 && (
+                {selectedPatient && bookings.length > 0 ? (
                   <div className="mt-4">
                     <h3 className="text-md font-semibold">Marcações para {selectedPatient?.label}</h3>
                     <ul className="mt-2">
@@ -204,16 +215,43 @@ const FormModalBookings = ({
                       ))}
                     </ul>
                   </div>
-                )}
+                ) : selectedPatient && bookings.length === 0 ? (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500">
+                      Este paciente não tem marcações.
+                    </p>
+                  </div>
+                ) : !selectedPatient ? (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">
+                    Selecione um paciente para ver as marcações.
+                  </p>
+                </div>
+              ): null}
               </div>
             )}
 
             {/* Delete Confirmation Form */}
             {confirmDeleteId && (
               <div className="mt-4 p-4 bg-gray-100 rounded-md">
-                <p className="text-sm text-gray-700">
-                  Tem certeza que deseja apagar esta marcação?
-                </p>
+                 {bookings
+                    .filter((booking) => booking.id === confirmDeleteId)
+                    .map((selectedBooking) => (
+                      <div key={selectedBooking.id}>
+                        <p className="text-sm text-gray-700">
+                          Tem certeza que deseja apagar esta marcação?
+                        </p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          <strong>Detalhes da Marcação:</strong>
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Início: {format(new Date(selectedBooking.booking_StartdateTime), "dd/MM/yyyy HH:mm")}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Fim: {format(new Date(selectedBooking.booking_EnddateTime), "dd/MM/yyyy HH:mm")}
+                        </p>
+                      </div>
+                    ))}
                 <div className="flex justify-end gap-4 mt-4">
                   <button
                     className="px-4 py-2 bg-gray-300 text-gray-700 rounded"

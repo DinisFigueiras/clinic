@@ -2,7 +2,7 @@ import Image from "next/image";
 import EventCalendar from "./EventCalendar";
 import EventList from "./EventList";
 
-const EventCalendarContainer = async ({searchParams}:{searchParams: {[keys: string]: string | undefined}}) => {
+const EventCalendarContainer = async ({searchParams}:{searchParams: Promise<{[keys: string]: string | undefined}>}) => {
     const params = await searchParams;
     const { date } = params;
     return (

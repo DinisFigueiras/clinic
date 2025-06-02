@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import InputField from "../InputField";
 import { medicationschema, Medicationschema } from "@/lib/formValidationSchemas";
-import { createMedication } from "@/lib/actions";
+import { createMedication, updateMedication } from "@/lib/actions";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,8 @@ const MedicationForm = ({
         resolver: zodResolver(medicationschema),
         });
 
-    const [state, formAction] = useActionState(createMedication, {
+    const [state, formAction] = useActionState(
+        type=== "create" ? createMedication: updateMedication, {
         success:false, error:false
     })  
 
@@ -48,7 +49,7 @@ const MedicationForm = ({
             setOpen(false);
             router.refresh();
         }
-    },[state])
+    },[state, router, setOpen, type]);
 
 
 
@@ -65,9 +66,9 @@ const MedicationForm = ({
                 <InputField label="Preço" inputName="price" type="number" defaultValue={data?.price} register={register} error={errors?.price} />
                 <InputField label="Fornecedor" inputName="supplier" defaultValue={data?.supplier} register={register} error={errors?.supplier}/>
             </div>
-            {state.error && <span className="text-red-500">Erro ao criar o produto</span>}
+            {/* {state.error && <span className="text-red-500">Erro ao criar o produto</span>} */}
 
-            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Create" : "Update"}</button>
+            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
         </form>
     )
 };

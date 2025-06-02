@@ -11,11 +11,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-const SinglePatientPage = async ({params:{id},}: {params: {id:number};}) => {
+const SinglePatientPage = async ({params}: {params: {id:string}}) => {
 
-
+    const resolvedParams = await params;
+    const id = Number(resolvedParams.id);
     const patient: Patient | null = await prisma.patient.findUnique({
-        where: {id: Number(id)},
+        where: {id},
     });
 
     if (!patient) {
@@ -61,11 +62,7 @@ const SinglePatientPage = async ({params:{id},}: {params: {id:number};}) => {
                         <div className="w-2/3 flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <h1 className="text-xl font-semibold">{patient.name}</h1>
-                            <FormContainer
-                                table="patients"
-                                type="update"
-                                data={{patient}}
-                                />
+                            <FormModal2 table="patients" type="update" data={patient}/>
                         </div>
                             <p className="text-sm text-gray-500">
                                 {patient.observations || "Sem observações."}
@@ -139,8 +136,8 @@ const SinglePatientPage = async ({params:{id},}: {params: {id:number};}) => {
             {/*RIGHT*/}
             <div className="w-full lg:w-1/3 flex flex-col gap-8">
             <EventCalendarContainerPatientID 
-                searchParams={{}} 
-                patientId={Number(id)} 
+                searchParams={Promise.resolve({})} 
+                patientId={id} 
             />
             </div>
         </div>

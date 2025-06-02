@@ -36,20 +36,7 @@ export const updatePatients = async (currentState:CurrentState,data:Patientschem
     try {
         await prisma.patient.update({
             where:{
-                id: data.id,
-                email: data.email,
-                name: data.name,
-                gender: data.gender,
-                date_of_birth: data.date_of_birth,
-                mobile_phone: data.mobile_phone,
-                nif: data.nif,
-                state_type: data.state_type,
-                attendance_type: data.attendance_type,
-                observations: data.observations,
-                address_line1: data.address_line1,
-                address_line2: data.address_line2,
-                city: data.city,
-                postal_code: data.postal_code
+                id: data.id
             },
             data: {
                 id: data.id,
@@ -116,13 +103,7 @@ export const updateMedication = async (currentState:CurrentState,data:Medication
     try {
         await prisma.medication.update({
             where:{
-                id:data.id,
-                name: data.name,
-                stock: data.stock,
-                type: data.type,
-                dosage: data.dosage,
-                price: data.price,
-                supplier: data.supplier
+                id:data.id
             },
             data: {
                 id: data.id,

@@ -68,7 +68,7 @@ const FormModal = ({
         setOpenState(false); // Close the modal
         router.refresh();
       }
-    }, [state]);
+    }, [state, router]);
 
     // Message for delete action
     const deleteMessage =

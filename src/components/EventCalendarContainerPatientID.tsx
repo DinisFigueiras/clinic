@@ -3,7 +3,7 @@ import EventCalendar from "./EventCalendar";
 import EventList from "./EventList";
 import EventListPatientID from "./EventListPatientID";
 
-const EventCalendarContainerPatientID = async ({searchParams, patientId}:{searchParams: {[keys: string]: string | undefined}; patientId: number}) => {
+const EventCalendarContainerPatientID = async ({searchParams, patientId}:{searchParams: Promise<{[keys: string]: string | undefined}>; patientId: number}) => {
     
     return (
         <div className='bg-white p-4 rounded-md'> 

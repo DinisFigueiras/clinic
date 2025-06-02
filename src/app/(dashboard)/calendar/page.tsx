@@ -1,14 +1,6 @@
-
-import BigCalendar from "@/components/BigCalendar"
 import BigCalendarContainer from "@/components/BigCalendarContainer"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
-import FormModal from "@/components/FormModal"
-import FormModal2 from "@/components/FormModal2";
 import FormModalBookings from "@/components/FormModalBookings";
-import BookingsForm3 from "@/components/Forms/BookingForm3";
-import BookingsForm from "@/components/Forms/BookingsForm";
-import BookingsForm2 from "@/components/Forms/BookingsForm2";
-import BookingForm2 from "@/components/Forms/BookingsForm2";
 import prisma from "@/lib/prisma";
 
 // const CalendarPage = async ({searchParams}:{searchParams: {[keys: string]: string | undefined}}) => {
@@ -116,11 +108,7 @@ import prisma from "@/lib/prisma";
 // export default CalendarPage
 
 
-
-import Image from "next/image";
-
-
-const CalendarPage2 = async ({ searchParams }: { searchParams: { [keys: string]: string | undefined } }) => {
+const CalendarPage2 = async ({ searchParams }: { searchParams: Promise<{ [keys: string]: string | undefined }>}) => {
   // Fetch patients and products directly in the Server Component
   const patients = await prisma.patient.findMany({
     select: {
@@ -143,7 +131,9 @@ const CalendarPage2 = async ({ searchParams }: { searchParams: { [keys: string]:
         <div className="h-full bg-white p-4 rounded-md">
           <h1 className="text-xl font-semibold">Calendário</h1>
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-          <h2 className="text-sm text-gray-500">Clique aqui data para criar uma nova marcação</h2>
+            <h2 className="text-sm text-gray-500"> Clique aqui para criar uma nova marcação</h2>
+          </div>
+          <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
             {/* Create and Update Booking Modals */}
             {/* Create Booking Modal */}
             <FormModalBookings

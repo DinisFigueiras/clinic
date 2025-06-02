@@ -50,7 +50,7 @@ const BookingsForm = ({
             setOpen(false);
             router.refresh();
         }
-    },[state]);
+    },[state, router, setOpen, type]);
 
     useEffect(() => {
         if (searchQuery.length > 2) {
