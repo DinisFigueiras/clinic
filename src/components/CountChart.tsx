@@ -13,12 +13,12 @@ const CountChart = ({clinica, domicilio}:{clinica: number, domicilio:number}) =>
         {
           name: 'Domicilio',
           count: domicilio,
-          fill: '#FAE27C',
+          fill: '#ffce99',
         },
         {
           name: 'Clinica',
           count: clinica,
-          fill: '#C3EBFA',
+          fill: '#afd6ff',
         },
         
       ];

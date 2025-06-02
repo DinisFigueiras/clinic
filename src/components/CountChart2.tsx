@@ -11,12 +11,12 @@ const CountChart2 = ({reformado, ativo}:{reformado: number, ativo:number}) => {
     {
         name: 'Ativo',
         count: ativo,
-        fill: '#FAE27C',
+        fill: '#ffce99',
     },
     {
         name: 'Reformado',
         count: reformado,
-        fill: '#C3EBFA',
+        fill: '#afd6ff',
     },
     
     ];

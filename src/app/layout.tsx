@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { error } from "console";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,7 +23,11 @@ export default function RootLayout({
     <ClerkProvider
     localization={{
       locale: "pt-PT"}}>
-      <html lang="en">
+      <html lang="pt-PT">
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        />
         <body className={inter.className}>{children}  <ToastContainer position="bottom-right" theme="dark"/> </body>
       </html>
     </ClerkProvider>

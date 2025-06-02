@@ -1,9 +1,6 @@
-import AttendanceChart from "@/components/AttendanceChart"
 import AttendanceChartContainer from "@/components/AttendanceChartContainer"
-import CountChart2 from "@/components/CountChart2"
 import CountChartContainer from "@/components/CountChartContainer"
 import CountChartContainer2 from "@/components/CountChartContainer2"
-import EventCalendar from "@/components/EventCalendar"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
 import UserCard from "@/components/Usercard"
 

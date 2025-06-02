@@ -9,16 +9,24 @@ const AttendanceChartContainer = async () => {
     const dayOfWeek = today.getDay()
     const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
     const lastMonday = new Date(today)
-
+    lastMonday.setHours(0,0,0,0)
     lastMonday.setDate(today.getDate() - daysSinceMonday)
+
+
+    // Calculate next Sunday (exclusive upper bound)
+    const nextSunday = new Date(lastMonday)
+    nextSunday.setDate(lastMonday.getDate() + 7)
+    nextSunday.setHours(0,0,0,0)
+
 
     const resData = await prisma.bookings.findMany({
         where:{
             booking_StartdateTime:{
-                gte: lastMonday
+                gte: lastMonday,
+                lt: nextSunday
             }
-        }
-        ,select:{
+        },
+        select:{
             booking_StartdateTime:true,
             attendance_type: true
         }
@@ -58,7 +66,7 @@ const AttendanceChartContainer = async () => {
     return(
         <div className='bg-white rounded-lg p-4 h-full'>
             <div className='flex justify-between items-center'>
-                <h1 className='text-lg font-semibold'>Consultas</h1>
+                <h1 className='text-lg font-semibold text-neutral'>Consultas</h1>
                 <Image src="/moreDark.png" alt='' width={20} height={20}/>
             </div>
             <AttendanceChart data={data}></AttendanceChart>

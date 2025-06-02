@@ -50,7 +50,9 @@ const PatientForm = ({
     useEffect(() => {
 
         if(state.success){
-            toast(`Paciente ${type === "create" ? "criado": "editado"}!`);
+            toast(`Paciente ${type === "create" ? "criado": "editado"}!`,
+                { type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
+            );
             setOpen(false);
             router.refresh();
         }
@@ -58,7 +60,7 @@ const PatientForm = ({
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onsubmit}>
-            <h1 className="text-xl font-semibold">{type === "create" ? "Criar um novo paciente" : "Editar o paciente"}</h1>
+            <h1 className="text-xl font-semibold text-neutral text-center">{type === "create" ? "Criar um novo paciente" : "Editar o paciente"}</h1>
             {/*INPUTS DOS PACIENTES*/}
             <div className="flex justify-between flex-wrap gap-4">
                 <InputField label="ID" inputName="id" type="number" defaultValue={data?.id} register={register} error={errors?.id}/>
@@ -95,7 +97,7 @@ const PatientForm = ({
                 </div>
                 <InputField label="Data de Nascimento" inputName="date_of_birth" type="date" defaultValue={formatDateForInput(data?.date_of_birth)} register={register} error={errors?.date_of_birth}/>
             </div>
-            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
+            <button className="bg-blue text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
             
         </form>
     )

@@ -53,7 +53,7 @@ const FormModal = ({
   products?: any[]; // Optional, default to empty array
 }) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
-  const bgColor = type === "create" ? "bg-yellow" : type === "update" ? "bg-blueSky" : "bg-purple";
+  const bgColor = type === "create" ? "bg-blue" : type === "update" ? "bg-blueLight" : "bg-red-400";
 
   const [open, setOpenState] = useState(false); // Rename state variable to avoid conflict with prop
 
@@ -64,7 +64,9 @@ const FormModal = ({
 
     useEffect(() => {
       if (state.success) {
-        toast(`Produto apagado!`);
+        toast(`Produto apagado!`,
+          {type: "error", autoClose: 2000, pauseOnHover: false, closeOnClick: true}
+        );
         setOpenState(false); // Close the modal
         router.refresh();
       }
@@ -83,7 +85,10 @@ const FormModal = ({
       <form action={formAction} className="p-4 flex flex-col gap-4">
         <input type="text | number" name="id" defaultValue={id} hidden />
         <span className="text-center font-medium">{deleteMessage}</span>
-        <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center">Apagar</button>
+        <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center">
+          Apagar
+          <i className="bi bi-trash text-md ml-2"></i>
+        </button>
       </form>
     ) : type === "create" || type === "update" ? (
       forms[table](setOpenState, type, data, patients, products) // Pass patients and products to the form
@@ -99,7 +104,9 @@ const FormModal = ({
         className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
         onClick={() => setOpenState(true)} // Update state when opening the modal
       >
-        <Image src={`/${type}.png`} alt="" width={16} height={16} />
+        {type === "create" && <i className="bi bi-plus-lg text-lg"></i>}
+        {type === "update" && <i className="bi bi-pencil-square text-sm"></i>}
+        {type === "delete" && <i className="bi bi-trash text-md"></i>}
       </button>
 
       {/* Modal overlay and content */}
@@ -109,7 +116,7 @@ const FormModal = ({
             <Form />
             {/* Close button */}
             <div className="absolute top-4 right-4 cursor-pointer" onClick={() => setOpenState(false)}>
-              <Image src="/close.png" alt="" width={14} height={14} />
+              <i className="bi bi-x-lg"></i>
             </div>
           </div>
         </div>

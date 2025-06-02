@@ -23,12 +23,12 @@ const LoginPage = () => {
   return (
     <div className='h-screen flex items-center justify-center bg-blueSkyLight'>
       <SignIn.Root>
-        <SignIn.Step name='start' className='bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2'>
+        <SignIn.Step name='start' className='bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center'>
+          <Image src="/logoclinic.png" alt='' width={80} height={80} className="mb-2"/>
           <h1 className='text-xl font-bold flex items-center gap-2'>
-            <Image src="/logo.png" alt='' width={24} height={24}/>
-            Clinica
+            Centro de Tratamento de Sacavem
           </h1>
-          <h2 className="text-gray-400">Entrar na aplicação</h2>
+          <h2 className="text-gray-400  text-center mb-2">Entrar na aplicação</h2>
 
           <Clerk.GlobalError className='text-sm text-red-400'/>  
           <Clerk.Field name="identifier" className='flex flex-col gap-2'>
