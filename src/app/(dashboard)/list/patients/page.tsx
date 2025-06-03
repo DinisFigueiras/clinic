@@ -1,10 +1,8 @@
-import FormModal from "@/components/FormModal"
+
 import FormModal2 from "@/components/FormModal2"
 import Pagination from "@/components/Paginations"
 import Table from "@/components/Table"
-import TableSeacrh from "@/components/TableSearch"
 import TableSeacrh2 from "@/components/TableSearch2"
-import { role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Patient, Prisma } from "@prisma/client"
@@ -89,9 +87,6 @@ const renderRow =(item:Patient) => (
                         <i className="bi bi-eye"></i>
                     </button>
                 </Link>
-                    {/* <button className="w-7 h-7 flex items-center justify-center rounded-full bg-peach">
-                    <Image src="/delete.png" alt="" width={16} height={16}/>
-                    </button> */}
                     <FormModal2 table="patients" type="delete" id={item.id}/>
             </div>
         </td>

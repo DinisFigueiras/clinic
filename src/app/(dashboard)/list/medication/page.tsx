@@ -1,15 +1,13 @@
-import FormContainer from "@/components/FormContainer"
+
 import FormModal2 from "@/components/FormModal2"
 import Pagination from "@/components/Paginations"
 import Table from "@/components/Table"
-import TableSeacrh from "@/components/TableSearch"
 import TableSeacrh2 from "@/components/TableSearch2"
 import { role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Medication, Prisma } from "@prisma/client"
 import Image from "next/image"
-import Link from "next/link"
 
 // type Patient ={
 //     id:number;
@@ -64,15 +62,15 @@ const columns = [
 ]
 
 const renderRow =(item:Medication) => (
-    <tr key={item.id} className="border-b border-gray-200 text-sm hover:bg-purple hover:cursor-pointer">
+    <tr key={item.id} className="border-b border-gray-200 text-sm text-neutral hover:bg-over hover:cursor-pointer">
         <td className="flex items-center gap-4 p-4">
             {/* <Image src={item.photo} alt="" width={40} height={40} className="md:hidden xl:block w-10 h-10 rounded-full object-cover"/> */}
             <div className="flex flex-col">
                 <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-500">{item.id}</p>
+                <p className="text-sm font-light">{item.id}</p>
             </div>
         </td>
-        <td className="hidden md:table-cell">{item.stock}</td>
+        <td className={`hidden md:table-cell ${item.stock < 5 ? "text-red-500 font-bold" : ""}`}>{item.stock}</td>
         <td className="hidden md:table-cell">{item.type}</td>
         <td className="hidden md:table-cell">{item.dosage}</td>
         <td className="hidden md:table-cell">{item?.price ? `${item.price.toString()} €`:  "€"}</td>
@@ -130,7 +128,6 @@ const MedicationListPage = async ({
         prisma.medication.count({where: query})
     ])
     
-    // console.log(count)
 
      // Convert Decimal fields to number
      const plainData = data.map(item => ({
@@ -146,18 +143,13 @@ const MedicationListPage = async ({
                 <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                     <TableSeacrh2/>
                     <div className="flex items-center gap-4 self-end">
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow">
+                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-peach">
                             <Image src="/filter.png" alt="" width={14} height={14}/>
                         </button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow">
+                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-peach">
                             <Image src="/sort.png" alt="" width={14} height={14}/>
                         </button>
-                        {role === "admin" && (
-                            // <button className="w-8 h-8 flex items-center justify-center rounded-full bg-yellow">
-                            // <Image src="/create.png" alt="" width={14} height={14}/>
-                            // </button>
                             <FormModal2 table="medication" type="create"/>
-                        )}
                     </div>
                 </div>
             </div>
@@ -172,4 +164,3 @@ const MedicationListPage = async ({
 
 export default MedicationListPage
 
-{/* 1h43:37 */}

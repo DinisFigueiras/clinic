@@ -44,6 +44,66 @@ const SinglePatientPage = async ({params}: {params: {id:string}}) => {
         },
     });
 
+    
+    const medicationUsage = await prisma.bookings.groupBy({
+    by: ['medication_id'],
+    where: {
+        patient_id: Number(id),
+        medication_id: { not: null },
+        booking_StartdateTime: {
+            lt: today, // Only past bookings
+        },
+    },
+    _count: { medication_id: true },
+    });
+
+    const medicationNames = await prisma.medication.findMany({
+        where: {
+            id: { in: medicationUsage.map(m => m.medication_id).filter((id): id is number => id !== null) }
+        },
+        select: { id: true, name: true }
+    });
+
+    const medicationMap = Object.fromEntries(medicationNames.map(m => [m.id, m.name]));
+
+
+
+
+
+    // Get all past bookings with medication for this patient
+    const pastBookingsWithMedication = await prisma.bookings.findMany({
+        where: {
+            patient_id: Number(id),
+            medication_id: { not: null },
+            booking_StartdateTime: { lt: today },
+        },
+        include: {
+            medication: true,
+        },
+        orderBy: {
+            booking_StartdateTime: "asc",
+        },
+    });
+
+    // Group bookings by medication_id
+    const bookingsByMedication: {
+        [medicationId: number]: { name: string; bookings: { id: number; date: Date }[] }
+    } = {};
+
+    pastBookingsWithMedication.forEach(b => {
+        if (!b.medication) return;
+        if (!bookingsByMedication[b.medication_id!]) {
+            bookingsByMedication[b.medication_id!] = {
+                name: b.medication.name,
+                bookings: [],
+            };
+        }
+        bookingsByMedication[b.medication_id!].bookings.push({
+            id: b.id,
+            date: b.booking_StartdateTime,
+        });
+    });
+
     return (
         <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
             {/*LEFT*/}
@@ -139,10 +199,50 @@ const SinglePatientPage = async ({params}: {params: {id:string}}) => {
             </div>
             {/*RIGHT*/}
             <div className="w-full lg:w-1/3 flex flex-col gap-8">
-            <EventCalendarContainerPatientID 
-                searchParams={Promise.resolve({})} 
-                patientId={id} 
-            />
+                <EventCalendarContainerPatientID 
+                    searchParams={Promise.resolve({})} 
+                    patientId={id} 
+                />
+                <div className="bg-white p-4 rounded-md mt-4">
+                    <h2 className="text-xl font-semibold text-neutral">Produtos Utilizados</h2>
+                    {Object.keys(bookingsByMedication).length === 0 ? (
+                        <p className="text-sm text-neutralLight">Nenhum produto utilizado.</p>
+                    ) : (
+                        <ul className="text-sm text-neutralLight list-disc pl-5">
+                            {Object.entries(bookingsByMedication).map(([medId, med]) => (
+                                <li key={medId}>
+                                    <span className="font-semibold text-blue">{med.name}</span>: {med.bookings.length} vezes
+                                    <ul className="ml-4 list-[circle]">
+                                        {med.bookings.map(b => (
+                                            <li key={b.id}>
+                                                {b.date.toLocaleDateString("pt-PT", {
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric",
+                                                })}{" "}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                {/* <div className="bg-white p-4 rounded-md mt-4">
+                    <h2 className="text-xl font-semibold text-neutral">Produtos Utilizados</h2>
+                    {medicationUsage.length === 0 ? (
+                        <p className="text-sm text-neutralLight">Nenhum produto utilizado.</p>
+                    ) : (
+                        <ul className="text-sm text-neutralLight list-disc pl-5">
+                            {medicationUsage.map(med => (
+                                <li key={med.medication_id}>
+                                    {med.medication_id !== null ? (medicationMap[med.medication_id] || "Produto desconhecido") : "Produto desconhecido"}: <b>{med._count.medication_id}</b> vezes
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div> */}
+
             </div>
         </div>
     )

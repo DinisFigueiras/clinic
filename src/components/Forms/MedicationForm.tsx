@@ -41,11 +41,12 @@ const MedicationForm = ({
 
 
     const router = useRouter();
-
     useEffect(() => {
 
         if(state.success){
-            toast(`Produto ${type === "create" ? "criado": "editado"}!`);
+            toast(`Paciente ${type === "create" ? "criado": "editado"}!`,
+                { type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
+            );
             setOpen(false);
             router.refresh();
         }
@@ -55,10 +56,10 @@ const MedicationForm = ({
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onsubmit}>
-            <h1 className="text-xl font-semibold">{type === "create" ? "Criar um novo produto" : "Editar o produto"}</h1>
+            <h1 className="text-xl font-semibold text-neutral text-center">{type === "create" ? "Criar um novo produto" : "Editar o produto"}</h1>
             {/*INPUTS DOS PRODUTOS*/}
             <div className="flex justify-between flex-wrap gap-4">
-                <InputField label="ID" inputName="id" type="number" defaultValue={data?.id} register={register} error={errors?.id}/>
+                <InputField label="ID" inputName="id" type="number" defaultValue={data?.id} register={register} error={errors?.id} readonly={type === "update"}/>
                 <InputField label="Nome do produto" inputName="name" defaultValue={data?.name} register={register} error={errors?.name}/>
                 <InputField label="Stock" inputName="stock" type="number" defaultValue={data?.stock} register={register} error={errors?.stock} />
                 <InputField label="Tipo do produto" inputName="type" defaultValue={data?.type} register={register} error={errors?.type}/>
@@ -68,7 +69,7 @@ const MedicationForm = ({
             </div>
             {/* {state.error && <span className="text-red-500">Erro ao criar o produto</span>} */}
 
-            <button className="bg-blue-400 text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
+            <button className="bg-blue text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
         </form>
     )
 };
