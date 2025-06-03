@@ -2,7 +2,7 @@
 import { Bookingschema, Medicationschema, Patientschema } from "./formValidationSchemas"
 import prisma from "./prisma"
 
-type CurrentState = {success:boolean;error:boolean}
+type CurrentState = {success:boolean;error:boolean | string}
 {/* -----------------------------PATIENTS------------------------------------------------*/}
 {/*PATIENTS CREATE*/}
 export const createPatients = async (currentState:CurrentState,data:Patientschema) => {
@@ -34,6 +34,40 @@ export const createPatients = async (currentState:CurrentState,data:Patientschem
 {/*PATIENTS UPDATE*/}
 export const updatePatients = async (currentState:CurrentState,data:Patientschema) => {
     try {
+
+        // Check if another patient already has this mobile_phone
+        const existingMobile = await prisma.patient.findFirst({
+            where: {
+                mobile_phone: data.mobile_phone,
+                id: { not: data.id } 
+            }
+        });
+        if (existingMobile) {
+            return { success: false, error: "O número de telemóvel já existe!" };
+        }
+
+        // (Repeat for other unique fields if needed, e.g. email, nif)
+        const existingEmail = await prisma.patient.findFirst({
+            where: {
+                email: data.email,
+                id: { not: data.id }
+            }
+        });
+        if (existingEmail) {
+            return { success: false, error: "O email já existe!" };
+        }
+
+        const existingNif = await prisma.patient.findFirst({
+            where: {
+                nif: data.nif,
+                id: { not: data.id }
+            }
+        });
+        if (existingNif) {
+            return { success: false, error: "O NIF já existe!" };
+        }
+
+
         await prisma.patient.update({
             where:{
                 id: data.id

@@ -36,10 +36,10 @@ const EventListPatientID = async ({
     });
 
     return data.map((event) => (
-        <div className="p-5 rounded-md border-2 border-gray-100 border-t-4" key={event.id}>
+        <div className="p-5 rounded-md border-2 border-neutral border-t-4" key={event.id}>
             <div className="flex items-center justify-between">
-                <h1 className="font-semibold text-gray-600">{event.patient.name}</h1>
-                <span className="text-gray-600 text-sm">
+                <h1 className="font-semibold text-neutral">{event.patient.name}</h1>
+                <span className="text-neutral font-semibold text-sm">
                 {event.booking_StartdateTime.toLocaleDateString("pt-PT", {
                     day: "2-digit",
                     month: "2-digit",
@@ -52,7 +52,13 @@ const EventListPatientID = async ({
                 })}
                 </span>
             </div>
-            <p className="mt-2 text-gray-400 text-sm">{event.attendance_type}</p>
+            <p
+                    className={`text-sm mt-2 font-semibold ${
+                        event.attendance_type === "Domicilio" ? "text-peach" : "text-blue"
+                    }`}
+                >
+                  {event.attendance_type}  
+                </p>
         </div>
     ));
 };

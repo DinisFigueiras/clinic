@@ -49,43 +49,48 @@ const SinglePatientPage = async ({params}: {params: {id:string}}) => {
             {/*LEFT*/}
             <div className="w-full xl:w-2/3">
                 {/*TOP*/}
-                <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex flex-col lg:flex-row gap-4 ">
                     {/*USER INFO CARD*/}
-                    <div className="bg-blueSky py-6 px-4 rounded-md flex-1 flex gap-4">
-                        <div className="w-1/3">
-                        <Image src="/avatar.png"
+                    <div className="py-6 px-4 rounded-md flex-1 flex gap-4 bg-blueLight text-neutral items-center min-h-[90px]">
+                        <div className="w-1/3 flex items-center justify-center">
+                        <i className="bi bi-person-circle text-[90px] w-36 h-36 text-black " ></i>
+                        {/* <Image src="/avatar.png"
                          alt="" 
                          width={144}
                           height={144} 
-                          className="w-36 h-36 rounded-full object-cover"/>
+                          className="w-36 h-36 rounded-full object-cover"/> */}
                         </div>
                         <div className="w-2/3 flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-xl font-semibold">{patient.name}</h1>
+                            <h1 className="text-xl font-bold">{patient.name}</h1>
                             <FormModal2 table="patients" type="update" data={patient}/>
                         </div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-neutralLight mb-2">
                                 {patient.observations || "Sem observações."}
                             </p>
                             <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/class.png" alt="" width={14} height={14}/>
+                                    <i className="bi bi-credit-card-2-front-fill"></i>
                                     <span>{patient.nif}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/date.png" alt="" width={14} height={14}/>
+                                    <i className="bi bi-calendar2-week-fill"></i>
                                     <span>{new Intl.DateTimeFormat("pt-PT").format(patient.date_of_birth)}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/mail.png" alt="" width={14} height={14}/>
+                                    <i className="bi bi-envelope-fill"></i>
                                     <span>{patient.email || "-"}</span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                                    <Image src="/phone.png" alt="" width={14} height={14}/>
-                                    <span>{patient.mobile_phone || "-"}</span>
+                                    <i className="bi bi-telephone-fill"></i>
+                                    <span>
+                                    {patient.mobile_phone
+                                        ? patient.mobile_phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3")
+                                        : "-"}
+                                    </span>
                                 </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 flex-grow">
-                                    <Image src="/home.png" alt="" width={14} height={14}/>
+                                    <i className="bi bi-house-fill"></i>
                                     <span>{patient.address_line1 + " " + patient.address_line2 + ", " + patient.city + " -" + patient.postal_code || "-"}</span>
                                 </div>
                             </div>
@@ -94,42 +99,41 @@ const SinglePatientPage = async ({params}: {params: {id:string}}) => {
                     {/*SMALL CARDS*/}
                     <div className="flex-1 flex gap-4 justify-between flex-wrap">
                         {/*CARD 1*/}
-                        <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                        <div className="bg-peachLight p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                             <Image src="/singleAttendance.png" alt="" width={24} height={24} className="w-6 h-6"/>
                             <div className="">
-                               <h1 className="text-xl font-semibold">{patient.attendance_type}</h1>
-                               <span className="text-sm text-gray-400">Tipo de Atendimento</span> 
+                               <h1 className="text-xl font-semibold text-neutral">{patient.attendance_type}</h1>
+                               <span className="text-sm text-neutralLight font-light">Tipo de Atendimento</span> 
                             </div>
                         </div>
                         {/*CARD 2*/}
-                        <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                        <div className="bg-peachLight p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                             <Image src="/singleBranch.png" alt="" width={24} height={24} className="w-6 h-6"/>
                             <div className="">
-                               <h1 className="text-xl font-semibold">{patient.state_type}</h1>
-                               <span className="text-sm text-gray-400">Estado do Paciente</span> 
+                               <h1 className="text-xl font-semibold text-neutral">{patient.state_type}</h1>
+                               <span className="text-sm text-neutralLight font-light">Estado do Paciente</span> 
                             </div>
                         </div>
                         {/*CARD 3*/}
-                        <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                        <div className="bg-peachLight p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                             <Image src="/singleLesson.png" alt="" width={24} height={24} className="w-6 h-6"/>
                             <div className="">
-                               <h1 className="text-xl font-semibold">{pastBookingsCount}</h1>
-                               <span className="text-sm text-gray-400">Marcações Realizadas</span> 
+                               <h1 className="text-xl font-semibold text-neutral">{pastBookingsCount}</h1>
+                               <span className="text-sm text-neutralLight font-light">Marcações Realizadas</span> 
                             </div>
                         </div>
                         {/*CARD 4*/}
-                        <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+                        <div className="bg-peachLight p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%] ">
                             <Image src="/singleClass.png" alt="" width={24} height={24} className="w-6 h-6"/>
                             <div className="">
-                               <h1 className="text-xl font-semibold">{futureBookingsCount}</h1>
-                               <span className="text-sm text-gray-400">Marcações Futuras</span> 
+                               <h1 className="text-xl font-semibold text-neutral ">{futureBookingsCount}</h1>
+                               <span className="text-sm text-neutralLight font-light">Marcações Futuras</span> 
                             </div>
                         </div>
                     </div>
                 </div>
                 {/*BOTTOM*/}
                 <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-                    <h1>Calendario </h1>
                     <BigCalendarContainer/>
                 </div>
             </div>

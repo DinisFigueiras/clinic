@@ -5,8 +5,29 @@ export const patientschema = z.object({
     email: z.string().email({message: "Email inválido"}),
     name: z.string().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(50, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
     gender: z.enum(["Masculino", "Feminino"], {message: "Genero é obrigatório"}),
-    date_of_birth: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de nascimento é obirgatória" }).transform((val) => new Date(val)),
-    mobile_phone: z.string().min(1, {message: "Telemovel é obrigatório"}).max(9, {message: "Telemovel inválido"}),
+    date_of_birth: z
+      .string()
+      .refine((val) => !isNaN(Date.parse(val)), { message: "Data de nascimento é obrigatória" })
+      .transform((val) => new Date(val))
+      .refine(
+        (date) => {
+          const now = new Date();
+          return date <= now;
+        },
+        { message: "A data de nascimento não pode ser no futuro" }
+      )
+      .refine(
+        (date) => {
+          const now = new Date();
+          const minDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+          return date <= minDate;
+        },
+        { message: "O paciente deve ter pelo menos 1 ano" }
+    ),
+   mobile_phone: z
+  .string()
+  .length(9, { message: "Telemovel tem de ter maximo de 9 caracters" })
+  .regex(/^\d+$/, { message: "Telemovel inválido" }),
     nif: z.string().min(1, {message: "NIF é Obrigatório"}).max(9, {message: "NIF inválido"}),
     state_type: z.enum(["Ativo", "Reformado"], {message: "Este campo é obrigatório"}),
     attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório"}),

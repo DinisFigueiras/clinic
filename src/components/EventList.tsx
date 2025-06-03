@@ -17,10 +17,10 @@ const EventList = async ({dateParam}:{dateParam: string | undefined}) => {
         }
     });
     return data.map((event) =>(
-            <div className="p-5 rounded-md border-2 border-gray-100 border-t-4" key={event.id}>
+            <div className="p-5 rounded-md border-2 border-neutral border-t-4" key={event.id}>
                 <div className="flex items-center justify-between">
                     <h1 className="font-semibold text-neutral">{event.patient.name}</h1>
-                    <span className="text-neutral  font-semiboldtext-sm">
+                    <span className="text-neutral  font-semibold text-sm">
                     {event.booking_StartdateTime.toLocaleDateString("pt-PT", {
                     day: "2-digit",
                     month: "2-digit",

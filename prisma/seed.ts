@@ -25,7 +25,7 @@ async function main() {
             name: `Utente${i}`,
             gender: i % 2 === 0 ? Gender.Masculino : Gender.Feminino,
             date_of_birth: new Date(new Date().setFullYear(new Date().getFullYear() - 20)),
-            mobile_phone: `123-456-789${i}`,
+            mobile_phone: `123456789${i}`,
             nif: `12345678${i}`,
             state_type: i % 2 === 0 ? PatientStat.Ativo : PatientStat.Reformado,
             attendance_type: i % 2 === 0 ? PatientAttendance.Clinica : PatientAttendance.Domicilio,

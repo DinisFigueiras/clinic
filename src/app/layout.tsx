@@ -24,10 +24,12 @@ export default function RootLayout({
     localization={{
       locale: "pt-PT"}}>
       <html lang="pt-PT">
+      <head>
         <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        />
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      />
+      </head>
         <body className={inter.className}>{children}  <ToastContainer position="bottom-right" theme="dark"/> </body>
       </html>
     </ClerkProvider>
