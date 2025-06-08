@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import FormModal2 from "./FormModal2";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export type FormContainerProps = {
         table:
@@ -20,17 +20,19 @@ const FormContainer = async ({table, type,data,id}:FormContainerProps) =>{
     if (type !== "delete") {
        switch (table) {
         case "bookings":
-            const bookingsMedication = await prisma.bookings.findMany({
-                select:{
-                    
-                }
-            })
+            const bookingsMedication = await withPrisma(async (prisma) => {
+                return await prisma.bookings.findMany({
+                    select:{
+
+                    }
+                });
+            });
             break;
-       
+
         default:
             break;
        }
-        
+
     }
 
 

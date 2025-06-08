@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -9,11 +9,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Patient name is required" }, { status: 400 });
     }
 
-    const patient = await prisma.patient.findFirst({
-      where: { name: patientName },
-      include: {
-        Bookings: true, // Include all bookings for the patient
-      },
+    const patient = await withPrisma(async (prisma) => {
+      return await prisma.patient.findFirst({
+        where: { name: patientName },
+        include: {
+          Bookings: true, // Include all bookings for the patient
+        },
+      });
     });
 
     if (!patient) {

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import AsyncSelect from "react-select/async";
 import { bookingschema, Bookingschema } from "@/lib/formValidationSchemas";
-import { createBookings } from "@/lib/actions";
+import { createBookings, updateBookings } from "@/lib/actions";
 import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -33,9 +33,19 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
     defaultValues: data ?? {},  // If updating, use existing data as default
   });
 
-  const [state, formAction] = useActionState(createBookings, {
-    success: false, error: false
-  });
+  const [state, formAction] = useActionState(
+    async (
+      state: { success: boolean; error: boolean | string },
+      payload: Bookingschema
+    ) => {
+      if (type === "create") {
+        return await createBookings(state, payload);
+      } else {
+        return await updateBookings(state, payload);
+      }
+    },
+    { success: false, error: false }
+  );
 
   const onsubmit = handleSubmit((data) => {
     console.log("Form Data Submitted:", data);  // Log to check if patient_id is set
@@ -56,9 +66,17 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
 
   useEffect(() => {
     if (state.success) {
-      toast(`Booking ${type === "create" ? "created" : "updated"}!`);
+      toast(`Marcação ${type === "create" ? "criada" : "atualizada"} com sucesso!`,
+        { type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
+      );
       setOpen(false);
       router.refresh();
+    }
+    if(state.error && typeof state.error === "string"){
+      toast.dismiss();
+      toast(state.error,
+        { type: "error", autoClose: 3000, pauseOnHover: false, closeOnClick: true }
+      );
     }
   }, [state, router, setOpen, type]);
 

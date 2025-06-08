@@ -4,7 +4,7 @@ import Pagination from "@/components/Paginations"
 import SortButton from "@/components/SortButton"
 import Table from "@/components/Table"
 import TableSeacrh2 from "@/components/TableSearch2"
-import prisma from "@/lib/prisma"
+import { withPrisma } from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Medication, Prisma } from "@prisma/client"
 import Image from "next/image"
@@ -111,17 +111,17 @@ const MedicationListPage = async ({
         orderBy = { name: "desc" };
     }
 
-    const [data,count] = await prisma.$transaction([
-
-        prisma.medication.findMany({
-            where: query,
-            take: ITEM_PER_PAGE,
-            skip: ITEM_PER_PAGE * (p-1),
-            orderBy
-        }),
-
-        prisma.medication.count({where: query})
-    ])
+    const [data,count] = await withPrisma(async (prisma) => {
+        return await prisma.$transaction([
+            prisma.medication.findMany({
+                where: query,
+                take: ITEM_PER_PAGE,
+                skip: ITEM_PER_PAGE * (p-1),
+                orderBy
+            }),
+            prisma.medication.count({where: query})
+        ]);
+    });
     
 
      // Convert Decimal fields to number

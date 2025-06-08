@@ -1,24 +1,28 @@
 import BigCalendarContainer from "@/components/BigCalendarContainer"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
 import FormModalBookings from "@/components/FormModalBookings";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 const CalendarPage = async ({ searchParams }: { searchParams: Promise<{ [keys: string]: string | undefined }> }) => {
   // Await the searchParams Promise
   const params = await searchParams;
   // Fetch patients and products directly in the Server Component
-  const patients = await prisma.patient.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-  });
+  const { patients, products } = await withPrisma(async (prisma) => {
+    const patients = await prisma.patient.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
 
-  const products = await prisma.medication.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
+    const products = await prisma.medication.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return { patients, products };
   });
 
   return (

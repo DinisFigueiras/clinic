@@ -56,13 +56,24 @@ const PatientForm = ({
 
     const router = useRouter();
     useEffect(() => {
-
         if(state.success){
             toast(`Paciente ${type === "create" ? "criado": "editado"}!`,
                 { type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
             );
             setOpen(false);
             router.refresh();
+        }
+        if(state.error && typeof state.error === "string"){
+            toast.dismiss();
+            toast(state.error,
+                {
+                    type: "error",
+                    autoClose: 3000,
+                    pauseOnHover: false,
+                    closeOnClick: true,
+                    toastId: "patient-form-error"
+                }
+            );
         }
     },[state, router, setOpen, type]);
 
@@ -114,4 +125,3 @@ const PatientForm = ({
 };
 
 export default PatientForm
-

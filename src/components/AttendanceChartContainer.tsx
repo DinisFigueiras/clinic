@@ -1,6 +1,6 @@
 import Image from "next/image"
 import AttendanceChart from "./AttendanceChart"
-import prisma from "@/lib/prisma"
+import { withPrisma } from "@/lib/prisma"
 
 const AttendanceChartContainer = async () => {
     const today = new Date()
@@ -25,18 +25,20 @@ const AttendanceChartContainer = async () => {
     nextSaturday.setHours(23,59,59,999)
 
 
-    const resData = await prisma.bookings.findMany({
-        where:{
-            booking_StartdateTime:{
-                gte: lastMonday,
-                lt: nextSaturday
+    const resData = await withPrisma(async (prisma) => {
+        return await prisma.bookings.findMany({
+            where:{
+                booking_StartdateTime:{
+                    gte: lastMonday,
+                    lt: nextSaturday
+                }
+            },
+            select:{
+                booking_StartdateTime:true,
+                attendance_type: true
             }
-        },
-        select:{
-            booking_StartdateTime:true,
-            attendance_type: true
-        }
-    })
+        });
+    });
 
     const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado']
      // Prepare chart data with day and date

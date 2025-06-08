@@ -1,12 +1,14 @@
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 import moment from 'moment-timezone';
 import CalendarApp from "./BigCalendar2";
 
 const BigCalendarContainer = async () => {
-  const dataRes = await prisma.bookings.findMany({
-    include: {
-      patient: true
-    }
+  const dataRes = await withPrisma(async (prisma) => {
+    return await prisma.bookings.findMany({
+      include: {
+        patient: true
+      }
+    });
   });
 
   const data1 = dataRes.map(booking => ({

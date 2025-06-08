@@ -1,18 +1,23 @@
-import prisma from "@/lib/prisma"
+import { withPrisma } from "@/lib/prisma"
 import { Record } from "@prisma/client/runtime/library"
 import Image from "next/image"
 import { unknown } from "zod"
 
 const UserCard = async ({type}:{type: "Utentes" | "Marcações" | "Produtos" }) => {
 
-const modelMap : Record<typeof type, any> = {
-    Utentes: prisma.patient,
-    Produtos: prisma.medication,
-    Marcações: prisma.bookings,
-}
-    
+    const data = await withPrisma(async (prisma) => {
+        switch (type) {
+            case "Utentes":
+                return await prisma.patient.count();
+            case "Produtos":
+                return await prisma.medication.count();
+            case "Marcações":
+                return await prisma.bookings.count();
+            default:
+                return 0;
+        }
+    });
 
-    const data = await modelMap[type].count()
     const currentYear = new Date().getFullYear()
     console.log(data)
     return(

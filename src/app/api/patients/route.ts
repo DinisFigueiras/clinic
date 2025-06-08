@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,8 +12,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid search query" }, { status: 400 });
     }
 
-    const patients = await prisma.patient.findMany({
-      where: { name: { contains: search, mode: "insensitive" } },
+    const patients = await withPrisma(async (prisma) => {
+      return await prisma.patient.findMany({
+        where: { name: { contains: search, mode: "insensitive" } },
+      });
     });
 
     console.log("Patients Found:", patients);

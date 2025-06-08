@@ -1,13 +1,15 @@
 import Image from "next/image"
 import CountChart from "./CountChart"
-import prisma from "@/lib/prisma"
+import { withPrisma } from "@/lib/prisma"
 
 const CountChartContainer = async () => {
 
-    const data = await prisma.patient.groupBy({
-        by:["attendance_type"],
-        _count: true
-    })
+    const data = await withPrisma(async (prisma) => {
+        return await prisma.patient.groupBy({
+            by:["attendance_type"],
+            _count: true
+        });
+    });
 
     const clinica = data.find(d => d.attendance_type === "Clinica")?._count || 0
     const domicilio = data.find(d => d.attendance_type === "Domicilio")?._count || 0

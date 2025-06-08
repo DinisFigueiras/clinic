@@ -4,7 +4,7 @@ import Pagination from "@/components/Paginations"
 import SortButton from "@/components/SortButton"
 import Table from "@/components/Table"
 import TableSeacrh2 from "@/components/TableSearch2"
-import prisma from "@/lib/prisma"
+import { withPrisma } from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Patient, Prisma } from "@prisma/client"
 import Image from "next/image"
@@ -83,7 +83,7 @@ const renderRow =(item:Patient) => (
         <td className="hidden md:table-cell">{item.city}</td>
         <td>
             <div className="flex items-center gap-2">
-                <Link href={`./patients/${item.id}`}>
+                <Link href={`./${item.id}`}>
                     <button className="w-7 h-7 flex items-center justify-center rounded-full bg-blueLight">
                         <i className="bi bi-eye"></i>
                     </button>
@@ -133,15 +133,17 @@ const PatientsListPage = async ({
         }
     }
 
-    const [data, count] = await prisma.$transaction([
-        prisma.patient.findMany({
-            where: query,
-            take: ITEM_PER_PAGE,
-            skip: ITEM_PER_PAGE * (p - 1),
-            orderBy,
-        }),
-        prisma.patient.count({ where: query })
-    ]);
+    const [data, count] = await withPrisma(async (prisma) => {
+        return await prisma.$transaction([
+            prisma.patient.findMany({
+                where: query,
+                take: ITEM_PER_PAGE,
+                skip: ITEM_PER_PAGE * (p - 1),
+                orderBy,
+            }),
+            prisma.patient.count({ where: query })
+        ]);
+    });
 
     return (
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

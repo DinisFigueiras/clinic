@@ -1,39 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const week = searchParams.get("week");
   const date = searchParams.get("date");
-  let data: any[] = [];
+  const patientId = searchParams.get("patientId");
+  const futureOnly = searchParams.get("futureOnly");
 
-  if (week) {
-    const now = new Date();
-    const weekEnd = new Date(now);
-    weekEnd.setDate(now.getDate() + 7);
-    data = await prisma.bookings.findMany({
-      where: {
-        booking_StartdateTime: {
-          gte: new Date(now.setHours(0, 0, 0, 0)),
-          lte: new Date(weekEnd.setHours(23, 59, 59, 999)),
-        },
-      },
+  const data = await withPrisma(async (prisma) => {
+    let where: any = {};
+
+    // Add patient filter if specified
+    if (patientId) {
+      where.patient_id = parseInt(patientId);
+    }
+
+    if (week) {
+      const now = new Date();
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() + 7);
+      where.booking_StartdateTime = {
+        gte: new Date(now.setHours(0, 0, 0, 0)),
+        lte: new Date(weekEnd.setHours(23, 59, 59, 999)),
+      };
+    } else if (date) {
+      const d = new Date(date);
+      where.booking_StartdateTime = {
+        gte: new Date(d.setHours(0, 0, 0, 0)),
+        lte: new Date(d.setHours(23, 59, 59, 999)),
+      };
+    } else if (futureOnly === 'true') {
+      where.booking_StartdateTime = {
+        gte: new Date(new Date().setHours(0, 0, 0, 0)),
+      };
+    }
+
+    // If no filters are specified and no patientId, return empty array
+    if (!week && !date && !futureOnly && !patientId) {
+      return [];
+    }
+
+    return await prisma.bookings.findMany({
+      where,
       include: { patient: true },
       orderBy: { booking_StartdateTime: "asc" },
     });
-  } else if (date) {
-    const d = new Date(date);
-    data = await prisma.bookings.findMany({
-      where: {
-        booking_StartdateTime: {
-          gte: new Date(d.setHours(0, 0, 0, 0)),
-          lte: new Date(d.setHours(23, 59, 59, 999)),
-        },
-      },
-      include: { patient: true },
-      orderBy: { booking_StartdateTime: "asc" },
-    });
-  }
+  });
 
   return NextResponse.json(data);
 }

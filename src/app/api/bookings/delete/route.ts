@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export async function DELETE(request: Request) {
   try {
@@ -9,8 +9,10 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    const deletedBooking = await prisma.bookings.delete({
-      where: { id },
+    const deletedBooking = await withPrisma(async (prisma) => {
+      return await prisma.bookings.delete({
+        where: { id },
+      });
     });
 
     return NextResponse.json(deletedBooking, { status: 200 });

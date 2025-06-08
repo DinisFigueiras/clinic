@@ -1,88 +1,77 @@
-import BigCalendar from "@/components/BigCalendar"
 import BigCalendarContainer from "@/components/BigCalendarContainer"
-import EventCalendar from "@/components/EventCalendar"
-import EventCalendarContainer from "@/components/EventCalendarContainer"
 import EventCalendarContainerPatientID from "@/components/EventCalendarContainerPatientID"
-import FormContainer from "@/components/FormContainer"
 import FormModal2 from "@/components/FormModal2"
-import prisma from "@/lib/prisma"
+import { withPrisma } from "@/lib/prisma"
 import { Patient } from "@prisma/client"
 import Image from "next/image"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
     const resolvedParams = await params;
     const id = Number(resolvedParams.id);
-    const patient: Patient | null = await prisma.patient.findUnique({
-        where: {id},
+    
+    const {
+        patient,
+        pastBookingsCount,
+        futureBookingsCount,
+        pastBookingsWithMedication
+    } = await withPrisma(async (prisma) => {
+        const patient: Patient | null = await prisma.patient.findUnique({
+            where: {id},
+        });
+
+        if (!patient) {
+            return { patient: null, pastBookingsCount: 0, futureBookingsCount: 0, pastBookingsWithMedication: [] };
+        }
+
+        const today = new Date();
+
+        // Count past bookings (bookings with a start date before today)
+        const pastBookingsCount = await prisma.bookings.count({
+            where: {
+                patient_id: Number(id),
+                booking_StartdateTime: {
+                    lt: today, // Less than today
+                },
+            },
+        });
+
+        // Count future bookings (bookings with a start date on or after today)
+        const futureBookingsCount = await prisma.bookings.count({
+            where: {
+                patient_id: Number(id),
+                booking_StartdateTime: {
+                    gte: today, // Greater than or equal to today
+                },
+            },
+        });
+
+        // Get all past bookings with medication for this patient
+        const pastBookingsWithMedication = await prisma.bookings.findMany({
+            where: {
+                patient_id: Number(id),
+                medication_id: { not: null },
+                booking_StartdateTime: { lt: today },
+            },
+            include: {
+                medication: true,
+            },
+            orderBy: {
+                booking_StartdateTime: "asc",
+            },
+        });
+
+        return {
+            patient,
+            pastBookingsCount,
+            futureBookingsCount,
+            pastBookingsWithMedication
+        };
     });
 
     if (!patient) {
         return notFound();
     }
-
-    const today = new Date();
-
-    // Count past bookings (bookings with a start date before today)
-    const pastBookingsCount = await prisma.bookings.count({
-        where: {
-            patient_id: Number(id),
-            booking_StartdateTime: {
-                lt: today, // Less than today
-            },
-        },
-    });
-    // Count future bookings (bookings with a start date on or after today)
-    const futureBookingsCount = await prisma.bookings.count({
-        where: {
-            patient_id: Number(id),
-            booking_StartdateTime: {
-                gte: today, // Greater than or equal to today
-            },
-        },
-    });
-
-    
-    const medicationUsage = await prisma.bookings.groupBy({
-    by: ['medication_id'],
-    where: {
-        patient_id: Number(id),
-        medication_id: { not: null },
-        booking_StartdateTime: {
-            lt: today, // Only past bookings
-        },
-    },
-    _count: { medication_id: true },
-    });
-
-    const medicationNames = await prisma.medication.findMany({
-        where: {
-            id: { in: medicationUsage.map(m => m.medication_id).filter((id): id is number => id !== null) }
-        },
-        select: { id: true, name: true }
-    });
-
-    const medicationMap = Object.fromEntries(medicationNames.map(m => [m.id, m.name]));
-
-
-
-
-
-    // Get all past bookings with medication for this patient
-    const pastBookingsWithMedication = await prisma.bookings.findMany({
-        where: {
-            patient_id: Number(id),
-            medication_id: { not: null },
-            booking_StartdateTime: { lt: today },
-        },
-        include: {
-            medication: true,
-        },
-        orderBy: {
-            booking_StartdateTime: "asc",
-        },
-    });
 
     // Group bookings by medication_id
     const bookingsByMedication: {
@@ -113,11 +102,6 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                     <div className="py-6 px-4 rounded-md flex-1 flex gap-4 bg-blueLight text-neutral items-center min-h-[90px]">
                         <div className="w-1/3 flex items-center justify-center">
                         <i className="bi bi-person-circle text-[90px] w-36 h-36 text-black " ></i>
-                        {/* <Image src="/avatar.png"
-                         alt="" 
-                         width={144}
-                          height={144} 
-                          className="w-36 h-36 rounded-full object-cover"/> */}
                         </div>
                         <div className="w-2/3 flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
@@ -227,21 +211,6 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                         </ul>
                     )}
                 </div>
-                {/* <div className="bg-white p-4 rounded-md mt-4">
-                    <h2 className="text-xl font-semibold text-neutral">Produtos Utilizados</h2>
-                    {medicationUsage.length === 0 ? (
-                        <p className="text-sm text-neutralLight">Nenhum produto utilizado.</p>
-                    ) : (
-                        <ul className="text-sm text-neutralLight list-disc pl-5">
-                            {medicationUsage.map(med => (
-                                <li key={med.medication_id}>
-                                    {med.medication_id !== null ? (medicationMap[med.medication_id] || "Produto desconhecido") : "Produto desconhecido"}: <b>{med._count.medication_id}</b> vezes
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div> */}
-
             </div>
         </div>
     )
