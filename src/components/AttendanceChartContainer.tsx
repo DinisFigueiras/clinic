@@ -1,29 +1,35 @@
 import Image from "next/image"
 import AttendanceChart from "./AttendanceChart"
 import prisma from "@/lib/prisma"
-import { string } from "zod"
 
 const AttendanceChartContainer = async () => {
-
     const today = new Date()
-    const dayOfWeek = today.getDay()
-    const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-    const lastMonday = new Date(today)
-    lastMonday.setHours(0,0,0,0)
-    lastMonday.setDate(today.getDate() - daysSinceMonday)
-
+    let lastMonday: Date;
+    if (today.getDay() === 0) {
+    // If today is Sunday, show next week's Monday
+    lastMonday = new Date(today);
+    lastMonday.setDate(today.getDate() + 1); // move to next Monday
+    lastMonday.setHours(0, 0, 0, 0);
+    } else {
+    // Otherwise, show this week's Monday
+    const dayOfWeek = today.getDay();
+    const daysSinceMonday = dayOfWeek - 1;
+    lastMonday = new Date(today);
+    lastMonday.setDate(today.getDate() - daysSinceMonday);
+    lastMonday.setHours(0, 0, 0, 0);
+    }
 
     // Calculate next Sunday (exclusive upper bound)
-    const nextSunday = new Date(lastMonday)
-    nextSunday.setDate(lastMonday.getDate() + 7)
-    nextSunday.setHours(0,0,0,0)
+    const nextSaturday = new Date(lastMonday)
+    nextSaturday.setDate(lastMonday.getDate() + 6)
+    nextSaturday.setHours(23,59,59,999)
 
 
     const resData = await prisma.bookings.findMany({
         where:{
             booking_StartdateTime:{
                 gte: lastMonday,
-                lt: nextSunday
+                lt: nextSaturday
             }
         },
         select:{
@@ -33,35 +39,33 @@ const AttendanceChartContainer = async () => {
     })
 
     const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado']
-    const attendanceMap: {[key: string]: {clinica: number; domicilio: number}} =
-    {
-        Segunda:{clinica: 0, domicilio: 0},
-        Terça:{clinica: 0, domicilio: 0},
-        Quarta:{clinica: 0, domicilio: 0},
-        Quinta:{clinica: 0, domicilio: 0},
-        Sexta:{clinica: 0, domicilio: 0},
-        Sabado:{clinica: 0, domicilio: 0},
-    }
+     // Prepare chart data with day and date
+    const data = daysOfWeek.map((day, i) => {
+        // Calculate the date for each day (starting from lastMonday)
+        const date = new Date(lastMonday);
+        date.setDate(lastMonday.getDate() + i);
+        // Format as "09-06"
+        const dateStr = date.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" });
 
+        // Count bookings for this day and type
+        const bookingsForDay = resData.filter(b => {
+            const bDate = new Date(b.booking_StartdateTime);
+            return (
+                bDate.getFullYear() === date.getFullYear() &&
+                bDate.getMonth() === date.getMonth() &&
+                bDate.getDate() === date.getDate()
+            );
+        });
 
-    resData.forEach(item =>{
-        const itemDate = new Date(item.booking_StartdateTime)
-        const dayOfWeek = itemDate.getDay()
+        const clinicaCount = bookingsForDay.filter(b => b.attendance_type === "Clinica").length;
+        const domicilioCount = bookingsForDay.filter(b => b.attendance_type === "Domicilio").length;
 
-        if (dayOfWeek >=1 && dayOfWeek <=6) {
-            const dayName = daysOfWeek[dayOfWeek - 1]
-            if (item.attendance_type === "Clinica") {
-                attendanceMap[dayName].clinica += 1
-            } else if (item.attendance_type === "Domicilio") {
-                attendanceMap[dayName].domicilio += 1
-            }    
-        }
-    })
-    const data = daysOfWeek.map((day) =>({
-        name: day,
-        Clinica: attendanceMap[day].clinica,
-        Domicilio: attendanceMap[day].domicilio
-    }));
+        return {
+            name: `${day} ${dateStr}`,
+            Clinica: clinicaCount,
+            Domicilio: domicilioCount,
+        };
+    });
 
     return(
         <div className='bg-white rounded-lg p-4 h-full'>

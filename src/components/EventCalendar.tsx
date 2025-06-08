@@ -1,26 +1,28 @@
 "use client"
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
-
+import React from "react";
 type ValuePiece = Date | null;
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
+type EventCalendarProps = {
+  onDaySelect: (date: string) => void;
+};
+const EventCalendar = ({onDaySelect}: EventCalendarProps) => {
+    const [value, setValue] = useState<Value>(new Date());
 
-const EventCalendar = () => {
-    const [value, onChange] = useState<Value>(new Date());
 
-    const router = useRouter();
-
-    useEffect(() => {
-        if (value instanceof Date) {
-            router.push(`?date=${value}`);
+    // Only call onDaySelect when the user selects a date
+    const handleChange = (val: Value) => {
+        setValue(val);
+        if (val instanceof Date) {
+        onDaySelect(val.toISOString());
         }
-    }, [value,router])
+    };
 
-    return( <Calendar onChange={onChange} value={value}/> )
+    return( <Calendar onChange={handleChange} value={value}/> )
 }
 
 export default EventCalendar
