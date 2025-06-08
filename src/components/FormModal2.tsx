@@ -53,7 +53,7 @@ const FormModal = ({
   products?: any[]; // Optional, default to empty array
 }) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
-  const bgColor = type === "create" ? "bg-blue" : type === "update" ? "bg-blueLight" : "bg-red-400";
+  const bgColor = type === "create" ? " bg-blueLight hover:bg-blue transition-colors duration-200" : type === "update" ? " bg-blueLight hover:bg-blue transition-colors duration-200" : "bg-red-400 hover:bg-red-500 transition-colors duration-200";
 
   const [open, setOpenState] = useState(false); // Rename state variable to avoid conflict with prop
 

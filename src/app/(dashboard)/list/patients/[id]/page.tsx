@@ -13,8 +13,8 @@ import { notFound } from "next/navigation"
 
 const SinglePatientPage = async ({params}: {params: {id:string}}) => {
 
-    const resolvedParams = await params;
-    const id = Number(resolvedParams.id);
+    
+    const id = Number(params.id);
     const patient: Patient | null = await prisma.patient.findUnique({
         where: {id},
     });
@@ -200,7 +200,7 @@ const SinglePatientPage = async ({params}: {params: {id:string}}) => {
             {/*RIGHT*/}
             <div className="w-full lg:w-1/3 flex flex-col gap-8">
                 <EventCalendarContainerPatientID 
-                    searchParams={Promise.resolve({})} 
+                    searchParams={{}}
                     patientId={id} 
                 />
                 <div className="bg-white p-4 rounded-md mt-4">

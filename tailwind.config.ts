@@ -20,7 +20,8 @@ const config: Config = {
         peachLight:'#ffce99',
         neutral:'#193841',
         neutralLight:'#4d5e63',
-        over: '#ccd0d1'
+        over: '#ccd0d1',
+        darkblue: '#1369c4'
       }
     },
   },

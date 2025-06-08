@@ -108,7 +108,7 @@ import prisma from "@/lib/prisma";
 // export default CalendarPage
 
 
-const CalendarPage2 = async ({ searchParams }: { searchParams: Promise<{ [keys: string]: string | undefined }>}) => {
+const CalendarPage2 = async ({ searchParams }: { searchParams: { [keys: string]: string | undefined }}) => {
   // Fetch patients and products directly in the Server Component
   const patients = await prisma.patient.findMany({
     select: {
@@ -129,11 +129,9 @@ const CalendarPage2 = async ({ searchParams }: { searchParams: Promise<{ [keys: 
       {/* LEFT */}
       <div className="w-full xl:w-2/3">
         <div className="h-full bg-white p-4 rounded-md">
-          <h1 className="text-xl font-semibold">Calendário</h1>
+          <h1 className="text-xl font-semibold text-neutral text-center">Calendário</h1>
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-            <h2 className="text-sm text-gray-500"> Clique aqui para criar uma nova marcação</h2>
-          </div>
-          <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
+            <h2 className="text-sm text-neutralLight"> Clique aqui para criar uma nova marcação</h2>
             {/* Create and Update Booking Modals */}
             {/* Create Booking Modal */}
             <FormModalBookings
@@ -150,7 +148,7 @@ const CalendarPage2 = async ({ searchParams }: { searchParams: Promise<{ [keys: 
       {/* RIGHT */}
       <div className="w-full xl:w-1/3 flex flex-col gap-8">
         <div className="bg-white p-4 rounded-md">
-          <h1 className="text-xl font-semibold">Marcações</h1>
+          <h1 className="text-xl text-neutral font-semibold">Marcações</h1>
         </div>
         <EventCalendarContainer searchParams={searchParams} />
       </div>

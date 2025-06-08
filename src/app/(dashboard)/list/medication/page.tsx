@@ -1,27 +1,13 @@
 
 import FormModal2 from "@/components/FormModal2"
 import Pagination from "@/components/Paginations"
+import SortButton from "@/components/SortButton"
 import Table from "@/components/Table"
 import TableSeacrh2 from "@/components/TableSearch2"
-import { role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Medication, Prisma } from "@prisma/client"
 import Image from "next/image"
-
-// type Patient ={
-//     id:number;
-//     patientId:string;
-//     name:string;
-//     email?:string;
-//     photo:string;
-//     phone:string;
-//     subjects:string[];
-//     classes:string[];
-//     address:string;
-
-// }
-
 
 
 //AQUI OS CAMPOS VISIVEIS NA COLUNA DE Produtos
@@ -89,10 +75,10 @@ const renderRow =(item:Medication) => (
 const MedicationListPage = async ({
     searchParams: initialSearchParams,
 }:{
-    searchParams: Promise<{ [key: string]: string | undefined}>;
+    searchParams: { [key: string]: string | undefined};
 }) => {
     const searchParams = await initialSearchParams;
-    const {page, ...queryParams} = searchParams;
+    const {page,sort, ...queryParams} = searchParams;
     const p = page ? parseInt(page) : 1;
 
     //URL PARAMETROS SEARCH
@@ -117,12 +103,21 @@ const MedicationListPage = async ({
         }
     }
 
+    // Add orderBy for sorting by name
+    let orderBy: Prisma.MedicationOrderByWithRelationInput = {};
+    if (sort === "name_asc") {
+        orderBy = { name: "asc" };
+    } else if (sort === "name_desc") {
+        orderBy = { name: "desc" };
+    }
+
     const [data,count] = await prisma.$transaction([
 
         prisma.medication.findMany({
             where: query,
             take: ITEM_PER_PAGE,
             skip: ITEM_PER_PAGE * (p-1),
+            orderBy
         }),
 
         prisma.medication.count({where: query})
@@ -143,18 +138,13 @@ const MedicationListPage = async ({
                 <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                     <TableSeacrh2/>
                     <div className="flex items-center gap-4 self-end">
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-peach">
-                            <Image src="/filter.png" alt="" width={14} height={14}/>
-                        </button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-peach">
-                            <Image src="/sort.png" alt="" width={14} height={14}/>
-                        </button>
+                        <SortButton />
                             <FormModal2 table="medication" type="create"/>
                     </div>
                 </div>
             </div>
             {/* LIST */}
-            <Table columns={columns} renderRow={renderRow} data={plainData}/>
+            <Table columns={columns} renderRow={renderRow} data={plainData} sort={sort}/>
             {/* PAGINATION */}
             <Pagination page={p} count={count}/>
         </div>

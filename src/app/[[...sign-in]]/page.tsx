@@ -23,12 +23,12 @@ const LoginPage = () => {
   return (
     <div className='h-screen flex items-center justify-center bg-blueSkyLight'>
       <SignIn.Root>
-        <SignIn.Step name='start' className='bg-white p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center'>
+        <SignIn.Step name='start' className='bg-blueLight p-12 rounded-md shadow-2xl flex flex-col gap-2 items-center'>
           <Image src="/logoclinic.png" alt='' width={80} height={80} className="mb-2"/>
           <h1 className='text-xl font-bold flex items-center gap-2'>
             Centro de Tratamento de Sacavem
           </h1>
-          <h2 className="text-gray-400  text-center mb-2">Entrar na aplicação</h2>
+          <h2 className="text-neutral  text-center mb-2">Entrar na aplicação</h2>
 
           <Clerk.GlobalError className='text-sm text-red-400'/>  
           <Clerk.Field name="identifier" className='flex flex-col gap-2'>
@@ -41,7 +41,7 @@ const LoginPage = () => {
             <Clerk.Input type='password' required className='p-2 rounded-md ring-1 ring-gray-300'/>
             <Clerk.FieldError className='text-xs text-red-400'/>
           </Clerk.Field>
-          <SignIn.Action submit className='bg-blue-500 text-white my-1 rounded-md text-sm p-[10px]'>Entrar</SignIn.Action>
+          <SignIn.Action submit className='bg-darkblue text-white my-1 rounded-md text-sm p-[10px]'>Entrar</SignIn.Action>
         </SignIn.Step>
       </SignIn.Root>
     </div>

@@ -3,8 +3,9 @@ import CountChartContainer from "@/components/CountChartContainer"
 import CountChartContainer2 from "@/components/CountChartContainer2"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
 import UserCard from "@/components/Usercard"
+import { PageProps } from '@/types'
 
-const AdminPage = ({searchParams}:{searchParams: Promise<{[keys: string]: string | undefined}>}) => {
+const AdminPage = ({searchParams}:PageProps) => {
     return(
         <div className='p-4 flex gap-4 flex-col md:flex-row'>
             {/* LEFT */}

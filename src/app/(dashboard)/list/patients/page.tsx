@@ -1,6 +1,7 @@
 
 import FormModal2 from "@/components/FormModal2"
 import Pagination from "@/components/Paginations"
+import SortButton from "@/components/SortButton"
 import Table from "@/components/Table"
 import TableSeacrh2 from "@/components/TableSearch2"
 import prisma from "@/lib/prisma"
@@ -96,14 +97,22 @@ const renderRow =(item:Patient) => (
 const PatientsListPage = async ({
     searchParams: initialSearchParams,
 }: {
-    searchParams: Promise<{ [key: string]: string | undefined }>;
+    searchParams: { [key: string]: string | undefined };
 }) => {
     const searchParams = await initialSearchParams;
-    const { page, ...queryParams } = searchParams;
+    const { page,sort, ...queryParams } = searchParams;
     const p = page ? parseInt(page) : 1;
 
     // URL PARAMETROS SEARCH
     const query: Prisma.PatientWhereInput = {};
+    let orderBy: Prisma.PatientOrderByWithRelationInput = {};
+    if (sort === "name_asc") {
+    orderBy = { name: "asc" };
+    } else if (sort === "name_desc") {
+    orderBy = { name: "desc" };
+    }
+
+
 
     if (queryParams) {
         for (const [key, value] of Object.entries(queryParams)) {
@@ -129,6 +138,7 @@ const PatientsListPage = async ({
             where: query,
             take: ITEM_PER_PAGE,
             skip: ITEM_PER_PAGE * (p - 1),
+            orderBy,
         }),
         prisma.patient.count({ where: query })
     ]);
@@ -141,18 +151,13 @@ const PatientsListPage = async ({
                 <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                     <TableSeacrh2 />
                     <div className="flex items-center gap-4 self-end">
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-peach">
-                            <Image src="/filter.png" alt="" width={14} height={14} />
-                        </button>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-peach">
-                            <Image src="/sort.png" alt="" width={14} height={14} />
-                        </button>
+                        <SortButton />
                         <FormModal2 table="patients" type="create" />
                     </div>
                 </div>
             </div>
             {/* LIST */}
-            <Table columns={columns} renderRow={renderRow} data={data} />
+            <Table columns={columns} renderRow={renderRow} data={data} sort={sort} />
             {/* PAGINATION */}
             <Pagination page={p} count={count} />
         </div>
