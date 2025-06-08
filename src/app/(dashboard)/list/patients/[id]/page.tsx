@@ -1,4 +1,4 @@
-import BigCalendarContainer from "@/components/BigCalendarContainer"
+import BigCalendarContainerPatient from "@/components/BigCalendarContainerPatient"
 import EventCalendarContainerPatientID from "@/components/EventCalendarContainerPatientID"
 import FormModal2 from "@/components/FormModal2"
 import { withPrisma } from "@/lib/prisma"
@@ -177,7 +177,7 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                 </div>
                 {/*BOTTOM*/}
                 <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-                    <BigCalendarContainer/>
+                    <BigCalendarContainerPatient patientId={id} />
                 </div>
             </div>
             {/*RIGHT*/}
