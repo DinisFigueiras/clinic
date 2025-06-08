@@ -1,10 +1,11 @@
 [build]
-  command = "npm run build"
+  command = "npm ci && npm run build"
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18.17.0"
-  NPM_VERSION = "9.6.7"
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  MISE_SETTINGS_IDIOMATIC_VERSION_FILE_ENABLE_TOOLS = "node"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
