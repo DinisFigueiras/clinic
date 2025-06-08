@@ -16,10 +16,12 @@ const config: Config = {
       colors:{
         blue:'#6fb5ff',
         blueLight:'#afd6ff',
+        blueSkyLight:'#e6f3ff',
         peach:'#FFB96F',
         peachLight:'#ffce99',
         neutral:'#193841',
         neutralLight:'#4d5e63',
+        gray500:'#6b7280',
         over: '#ccd0d1',
         darkblue: '#1369c4'
       }
