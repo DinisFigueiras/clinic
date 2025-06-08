@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma-serverless";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
-    
+
     console.log("Received search query:", search); // Debug
 
     if (!search || typeof search !== "string") {
       return NextResponse.json({ error: "Invalid search query" }, { status: 400 });
     }
 
-    const patients = await prisma.patient.findMany({
-      where: { name: { contains: search, mode: "insensitive" } },
+    const patients = await withPrisma(async (prisma) => {
+      return await prisma.patient.findMany({
+        where: { name: { contains: search, mode: "insensitive" } },
+      });
     });
 
     console.log("Patients Found:", patients);
