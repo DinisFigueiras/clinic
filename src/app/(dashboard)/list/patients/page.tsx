@@ -97,7 +97,7 @@ const renderRow =(item:Patient) => (
 const PatientsListPage = async ({
     searchParams: initialSearchParams,
 }: {
-    searchParams: { [key: string]: string | undefined };
+    searchParams: Promise<{ [key: string]: string | undefined }>;
 }) => {
     const searchParams = await initialSearchParams;
     const { page,sort, ...queryParams } = searchParams;

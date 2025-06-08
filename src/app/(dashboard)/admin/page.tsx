@@ -3,9 +3,10 @@ import CountChartContainer from "@/components/CountChartContainer"
 import CountChartContainer2 from "@/components/CountChartContainer2"
 import EventCalendarContainer from "@/components/EventCalendarContainer"
 import UserCard from "@/components/Usercard"
-import { PageProps } from '@/types'
 
-const AdminPage = ({searchParams}:PageProps) => {
+
+const AdminPage = async ({searchParams}: {searchParams: Promise<{[keys: string]: string | undefined}>}) => {
+    const params = await searchParams;
     return(
         <div className='p-4 flex gap-4 flex-col md:flex-row'>
             {/* LEFT */}
@@ -34,7 +35,7 @@ const AdminPage = ({searchParams}:PageProps) => {
             </div>
             {/* RIGHT */}
             <div className="w-full lg:w-1/3 flex flex-col gap-8">
-            <EventCalendarContainer searchParams={searchParams} />
+            <EventCalendarContainer searchParams={params} />
             </div>
         </div>
     )

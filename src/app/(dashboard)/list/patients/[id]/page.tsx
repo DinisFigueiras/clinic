@@ -11,10 +11,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-const SinglePatientPage = async ({params}: {params: {id:string}}) => {
-
-    
-    const id = Number(params.id);
+const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
+    const resolvedParams = await params;
+    const id = Number(resolvedParams.id);
     const patient: Patient | null = await prisma.patient.findUnique({
         where: {id},
     });
