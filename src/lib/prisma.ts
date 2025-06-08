@@ -1,22 +1,36 @@
 import { PrismaClient } from "@prisma/client";
 
-// Global Prisma client instance to avoid prepared statement conflicts
-const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClient | undefined;
-};
+const prismaClientSingleton = () => {
+    const baseUrl = process.env.DATABASE_URL || "";
+    // For serverless environments, disable prepared statements completely
+    const url = baseUrl.includes('?')
+        ? `${baseUrl}&prepared_statements=false&connection_limit=1`
+        : `${baseUrl}?prepared_statements=false&connection_limit=1`;
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-    log: ['error'],
-    // Disable prepared statements to avoid conflicts
-    datasourceUrl: process.env.DATABASE_URL + "?pgbouncer=true&prepared_statements=false"
-});
+    return new PrismaClient({
+        log: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
+        datasources: {
+            db: { url }
+        }
+    })
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+declare const globalThis: {
+    prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+} & typeof global;
+
+// In production (serverless), create a new client each time to avoid connection issues
+const prisma = process.env.NODE_ENV === 'production'
+    ? prismaClientSingleton()
+    : (globalThis.prismaGlobal ?? prismaClientSingleton())
 
 // Use the global Prisma client for all operations
 export function withPrisma<T>(operation: (prisma: PrismaClient) => Promise<T>): Promise<T> {
     return operation(prisma);
 }
 
-// Default export for backward compatibility
-export default prisma;
+export default prisma
+
+if (process.env.NODE_ENV !== 'production') {
+    globalThis.prismaGlobal = prisma
+}

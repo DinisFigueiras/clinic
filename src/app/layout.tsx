@@ -20,8 +20,13 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
-    localization={{
-      locale: "pt-PT"}}>
+      localization={{
+        locale: "pt-PT"
+      }}
+      signInUrl="/"
+      signUpUrl="/"
+      afterSignOutUrl="/"
+    >
       <html lang="pt-PT">
       <head>
         <link

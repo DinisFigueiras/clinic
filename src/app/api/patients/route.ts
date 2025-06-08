@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
-    
+
     console.log("Received search query:", search); // Debug
 
     if (!search || typeof search !== "string") {
