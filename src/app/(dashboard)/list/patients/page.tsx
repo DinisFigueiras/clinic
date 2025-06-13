@@ -123,7 +123,7 @@ const PatientsListPage = async ({
                         query.OR = [
                             ...(isNaN(id) ? [] : [{ id: { equals: id } }]),
                             { name: { contains: value, mode: "insensitive" } },
-                            { nif: { contains: value, mode: "insensitive" } }
+                            { mobile_phone: { contains: value, mode: "insensitive" } }
                         ];
                         break;
                     default:
