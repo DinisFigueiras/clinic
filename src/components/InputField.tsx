@@ -10,6 +10,7 @@ type InputFieldProps = {
     valueAsNumber?: boolean;
     inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
     readonly?: boolean;
+    required?: boolean;
 }
 
 
@@ -23,12 +24,16 @@ const InputField = (
     error,
     inputProps,
     valueAsNumber,
-    readonly
+    readonly,
+    required = false
     }: InputFieldProps
 ) => {
     return(
         <div className="flex flex-col gap-2 w-full md:w-1/4">
-            <label className="text-xs text-gray-500">{label}</label>
+            <label className="text-xs text-gray-500">
+                {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
             <input
                 type={type}
                 {...register(inputName, { valueAsNumber })}

@@ -11,6 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model Admin {
@@ -20,12 +21,12 @@ model Admin {
 
 model Patient {
   id Int @id
-  email String @unique
+  email String? @unique
   name String
   gender Gender
   date_of_birth DateTime
   mobile_phone String @unique
-  nif String @unique
+  nif String? @unique
   state_type PatientStat // retired or active
   attendance_type PatientAttendance // clinic or home
   observations String?

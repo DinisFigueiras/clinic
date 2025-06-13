@@ -155,7 +155,10 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
       <h1 className="text-xl font-semibold">{type === "create" ? "Criar uma nova marcação" : "Editar uma marcação"}</h1>
 
       {/* Patient Selection */}
-      <label className="block mb-2">Selecionar o paciente:</label>
+      <label className="block mb-2">
+        Selecionar o paciente:
+        <span className="text-red-500 ml-1">*</span>
+      </label>
       <AsyncSelect
         cacheOptions
         value={selectedPatient}
@@ -178,7 +181,10 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
       />
 
       {/* Start and End Time */}
-      <label className="block mt-4 mb-2">Data de inicio da marcação:</label>
+      <label className="block mt-4 mb-2">
+        Data de inicio da marcação:
+        <span className="text-red-500 ml-1">*</span>
+      </label>
       <input
         type="datetime-local"
         {...register("booking_StartdateTime")}
@@ -186,7 +192,10 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
       />
       {errors.booking_StartdateTime && <span className="text-red-500">{errors.booking_StartdateTime.message}</span>}
 
-      <label className="block mt-4 mb-2">Data de fim da marcação:</label>
+      <label className="block mt-4 mb-2">
+        Data de fim da marcação:
+        <span className="text-red-500 ml-1">*</span>
+      </label>
       <input
         type="datetime-local"
         {...register("booking_EnddateTime")}
@@ -195,7 +204,10 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
       {errors.booking_EnddateTime && <span className="text-red-500">{errors.booking_EnddateTime.message}</span>}
 
       {/* Attendance Type */}
-      <label className="block mt-4 mb-2">Tipo de atendimento:</label>
+      <label className="block mt-4 mb-2">
+        Tipo de atendimento:
+        <span className="text-red-500 ml-1">*</span>
+      </label>
       <select
         {...register("attendance_type")}
         className="p-2 border rounded"

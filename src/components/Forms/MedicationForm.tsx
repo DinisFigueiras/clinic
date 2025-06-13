@@ -59,13 +59,13 @@ const MedicationForm = ({
             <h1 className="text-xl font-semibold text-neutral text-center">{type === "create" ? "Criar um novo produto" : "Editar o produto"}</h1>
             {/*INPUTS DOS PRODUTOS*/}
             <div className="flex justify-between flex-wrap gap-4">
-                <InputField label="ID" inputName="id" type="number" defaultValue={data?.id} register={register} error={errors?.id} readonly={type === "update"}/>
-                <InputField label="Nome do produto" inputName="name" defaultValue={data?.name} register={register} error={errors?.name}/>
-                <InputField label="Stock" inputName="stock" type="number" defaultValue={data?.stock} register={register} error={errors?.stock} />
-                <InputField label="Tipo do produto" inputName="type" defaultValue={data?.type} register={register} error={errors?.type}/>
-                <InputField label="Dosagem do produto" inputName="dosage" defaultValue={data?.dosage} register={register} error={errors?.dosage}/>
-                <InputField label="Preço" inputName="price" type="number" defaultValue={data?.price} register={register} error={errors?.price} />
-                <InputField label="Fornecedor" inputName="supplier" defaultValue={data?.supplier} register={register} error={errors?.supplier}/>
+                <InputField label="ID" inputName="id" type="number" defaultValue={data?.id} register={register} error={errors?.id} readonly={type === "update"} required={true}/>
+                <InputField label="Nome do produto" inputName="name" defaultValue={data?.name} register={register} error={errors?.name} required={true}/>
+                <InputField label="Stock" inputName="stock" type="number" defaultValue={data?.stock} register={register} error={errors?.stock} required={true}/>
+                <InputField label="Tipo do produto" inputName="type" defaultValue={data?.type} register={register} error={errors?.type} required={true}/>
+                <InputField label="Dosagem do produto" inputName="dosage" defaultValue={data?.dosage} register={register} error={errors?.dosage} required={true}/>
+                <InputField label="Preço" inputName="price" type="number" defaultValue={data?.price} register={register} error={errors?.price} required={true}/>
+                <InputField label="Fornecedor" inputName="supplier" defaultValue={data?.supplier} register={register} error={errors?.supplier} required={true}/>
             </div>
             {/* {state.error && <span className="text-red-500">Erro ao criar o produto</span>} */}
 

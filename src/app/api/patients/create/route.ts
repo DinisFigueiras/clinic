@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     } = body;
 
     // Validate required fields
-    if (!id || !email || !name || !gender || !date_of_birth || !mobile_phone || !nif || !state_type || !attendance_type || !address_line1 || !city || !postal_code) {
+    if (!id || !name || !gender || !date_of_birth || !mobile_phone || !state_type || !attendance_type || !address_line1 || !city || !postal_code) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 

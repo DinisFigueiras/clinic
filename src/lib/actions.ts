@@ -18,35 +18,39 @@ export const createPatients = async (currentState:CurrentState,data:Patientschem
                 throw new Error("O número de telemóvel já existe!");
             }
 
-            // Check if email already exists
-            const existingEmail = await prisma.patient.findFirst({
-                where: {
-                    email: data.email
+            // Check if email already exists (only if email is provided)
+            if (data.email && data.email.trim() !== "") {
+                const existingEmail = await prisma.patient.findFirst({
+                    where: {
+                        email: data.email
+                    }
+                });
+                if (existingEmail) {
+                    throw new Error("O email já existe!");
                 }
-            });
-            if (existingEmail) {
-                throw new Error("O email já existe!");
             }
 
-            // Check if NIF already exists
-            const existingNif = await prisma.patient.findFirst({
-                where: {
-                    nif: data.nif
+            // Check if NIF already exists (only if NIF is provided)
+            if (data.nif && data.nif.trim() !== "") {
+                const existingNif = await prisma.patient.findFirst({
+                    where: {
+                        nif: data.nif
+                    }
+                });
+                if (existingNif) {
+                    throw new Error("O NIF já existe!");
                 }
-            });
-            if (existingNif) {
-                throw new Error("O NIF já existe!");
             }
 
             return await prisma.patient.create({
                 data: {
                     id: data.id,
-                    email: data.email,
+                    email: data.email && data.email.trim() !== "" ? data.email : null,
                     name: data.name,
                     gender: data.gender,
                     date_of_birth: data.date_of_birth,
                     mobile_phone: data.mobile_phone,
-                    nif: data.nif,
+                    nif: data.nif && data.nif.trim() !== "" ? data.nif : null,
                     state_type: data.state_type,
                     attendance_type: data.attendance_type,
                     observations: data.observations,
@@ -78,25 +82,30 @@ export const updatePatients = async (currentState:CurrentState,data:Patientschem
                 throw new Error("O número de telemóvel já existe!");
             }
 
-            // (Repeat for other unique fields if needed, e.g. email, nif)
-            const existingEmail = await prisma.patient.findFirst({
-                where: {
-                    email: data.email,
-                    id: { not: data.id }
+            // Check for unique email (only if email is provided)
+            if (data.email && data.email.trim() !== "") {
+                const existingEmail = await prisma.patient.findFirst({
+                    where: {
+                        email: data.email,
+                        id: { not: data.id }
+                    }
+                });
+                if (existingEmail) {
+                    throw new Error("O email já existe!");
                 }
-            });
-            if (existingEmail) {
-                throw new Error("O email já existe!");
             }
 
-            const existingNif = await prisma.patient.findFirst({
-                where: {
-                    nif: data.nif,
-                    id: { not: data.id }
+            // Check for unique NIF (only if NIF is provided)
+            if (data.nif && data.nif.trim() !== "") {
+                const existingNif = await prisma.patient.findFirst({
+                    where: {
+                        nif: data.nif,
+                        id: { not: data.id }
+                    }
+                });
+                if (existingNif) {
+                    throw new Error("O NIF já existe!");
                 }
-            });
-            if (existingNif) {
-                throw new Error("O NIF já existe!");
             }
 
             return await prisma.patient.update({
@@ -105,12 +114,12 @@ export const updatePatients = async (currentState:CurrentState,data:Patientschem
                 },
                 data: {
                     id: data.id,
-                    email: data.email,
+                    email: data.email && data.email.trim() !== "" ? data.email : "",
                     name: data.name,
                     gender: data.gender,
                     date_of_birth: data.date_of_birth,
                     mobile_phone: data.mobile_phone,
-                    nif: data.nif,
+                    nif: data.nif && data.nif.trim() !== "" ? data.nif : "",
                     state_type: data.state_type,
                     attendance_type: data.attendance_type,
                     observations: data.observations,

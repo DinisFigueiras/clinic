@@ -19,7 +19,6 @@ const UserCard = async ({type}:{type: "Utentes" | "Marcações" | "Produtos" }) 
     });
 
     const currentYear = new Date().getFullYear()
-    console.log(data)
     return(
         <div className='rounded-2xl odd:bg-blue even:bg-peach p-4 flex-1 min-w-[130px]'> 
             <div className="flex justify-between items-center">

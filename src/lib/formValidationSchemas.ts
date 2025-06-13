@@ -2,7 +2,9 @@ import { z } from "zod";
 
 export const patientschema = z.object({
     id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
-    email: z.string().email({message: "Email inválido"}),
+    email: z.string().optional().refine((val) => !val || val === "" || z.string().email().safeParse(val).success, {
+        message: "Email inválido"
+    }),
     name: z.string().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(50, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
     gender: z.enum(["Masculino", "Feminino"], {message: "Genero é obrigatório"}),
     date_of_birth: z
@@ -28,7 +30,9 @@ export const patientschema = z.object({
   .string()
   .length(9, { message: "Telemovel tem de ter maximo de 9 caracters" })
   .regex(/^\d+$/, { message: "Telemovel inválido" }),
-    nif: z.string().min(1, {message: "NIF é Obrigatório"}).max(9, {message: "NIF inválido"}),
+    nif: z.string().optional().refine((val) => !val || val === "" || (val.length <= 9 && /^\d*$/.test(val)), {
+        message: "NIF inválido (máximo 9 dígitos)"
+    }),
     state_type: z.enum(["Ativo", "Reformado"], {message: "Este campo é obrigatório"}),
     attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório"}),
     observations: z.string().optional(),
