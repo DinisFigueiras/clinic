@@ -9,8 +9,13 @@ import "react-toastify/dist/ReactToastify.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Clinic",
-  description: "Next.js Clinic Management",
+  title: "Centro de Tratamento de Sacavém",
+  description: "Sistema de Gestão Clínica",
+  icons: {
+    icon: '/logoclinic.png',
+    shortcut: '/logoclinic.png',
+    apple: '/logoclinic.png',
+  },
 };
 
 export default function RootLayout({

@@ -33,7 +33,7 @@ export const patientschema = z.object({
     nif: z.string().optional().refine((val) => !val || val === "" || (val.length <= 9 && /^\d*$/.test(val)), {
         message: "NIF inválido (máximo 9 dígitos)"
     }),
-    state_type: z.enum(["Ativo", "Reformado"], {message: "Este campo é obrigatório"}),
+    state_type: z.enum(["Ativo", "Reformado", "Estudante"], {message: "Este campo é obrigatório"}),
     attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório"}),
     observations: z.string().optional(),
     address_line1: z.string().min(1, {message: "Morada é obrigatório!"}),

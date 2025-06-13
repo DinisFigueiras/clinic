@@ -60,6 +60,7 @@ model Bookings {
 enum PatientStat {
   Reformado
   Ativo
+  Estudante
 }
 enum PatientAttendance {
   Clinica

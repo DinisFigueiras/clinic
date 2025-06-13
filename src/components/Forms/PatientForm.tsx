@@ -109,6 +109,7 @@ const PatientForm = ({
                     <select className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full" {...register("state_type")} defaultValue={data?.state_type}>
                         <option value="Reformado">Reformado</option>
                         <option value="Ativo">Ativo</option>
+                        <option value="Estudante">Estudante</option>
                     </select>
                     {errors.state_type?.message && <p className="text-xs text-red-400">{errors.state_type.message.toString()}</p>}
                 </div>
