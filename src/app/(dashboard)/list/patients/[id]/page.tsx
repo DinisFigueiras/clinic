@@ -50,11 +50,17 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
         const pastBookingsWithMedication = await prisma.bookings.findMany({
             where: {
                 patient_id: Number(id),
-                medication_id: { not: null },
                 booking_StartdateTime: { lt: today },
+                bookingMedications: {
+                    some: {} // Has at least one medication
+                }
             },
             include: {
-                medication: true,
+                bookingMedications: {
+                    include: {
+                        medication: true
+                    }
+                }
             },
             orderBy: {
                 booking_StartdateTime: "asc",
@@ -78,17 +84,18 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
         [medicationId: number]: { name: string; bookings: { id: number; date: Date }[] }
     } = {};
 
-    pastBookingsWithMedication.forEach(b => {
-        if (!b.medication) return;
-        if (!bookingsByMedication[b.medication_id!]) {
-            bookingsByMedication[b.medication_id!] = {
-                name: b.medication.name,
-                bookings: [],
-            };
-        }
-        bookingsByMedication[b.medication_id!].bookings.push({
-            id: b.id,
-            date: b.booking_StartdateTime,
+    pastBookingsWithMedication.forEach(booking => {
+        booking.bookingMedications.forEach(bm => {
+            if (!bookingsByMedication[bm.medication_id]) {
+                bookingsByMedication[bm.medication_id] = {
+                    name: bm.medication.name,
+                    bookings: [],
+                };
+            }
+            bookingsByMedication[bm.medication_id].bookings.push({
+                id: booking.id,
+                date: booking.booking_StartdateTime,
+            });
         });
     });
 

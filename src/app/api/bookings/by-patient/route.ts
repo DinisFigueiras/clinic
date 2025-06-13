@@ -13,7 +13,15 @@ export async function POST(request: Request) {
       return await prisma.patient.findFirst({
         where: { name: patientName },
         include: {
-          Bookings: true, // Include all bookings for the patient
+          Bookings: {
+            include: {
+              bookingMedications: {
+                include: {
+                  medication: true
+                }
+              }
+            }
+          }
         },
       });
     });

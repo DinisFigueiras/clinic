@@ -60,19 +60,11 @@ export const bookingschema = z.object({
     id: z.coerce.number(),
     patient_id: z.coerce.number().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(20, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
     patient: z.string().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(20, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
-    medication_id: z.coerce.number().optional(),
-    medication: z.string().optional(),
+    medication_ids: z.array(z.coerce.number()).optional(),
+    medications: z.array(z.string()).optional(),
     attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório!"}),
     booking_StartdateTime:  z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de começo é obirgatória!" }).transform((val) => new Date(val)),
     booking_EnddateTime: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de fim é obirgatória!" }).transform((val) => new Date(val)),
-  }).superRefine((data, ctx) => {
-    if (data.medication_id && !data.medication) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Nome Produto é obrigatório se Id do Produto estiver preenchido",
-            path: ["medication"],
-        });
-    }
 });
 
 export type Bookingschema = z.infer<typeof bookingschema>;

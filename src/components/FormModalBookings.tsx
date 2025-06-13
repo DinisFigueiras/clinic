@@ -21,7 +21,7 @@ const FormModalBookings = ({
   const [editBookingId, setEditBookingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<any>(null);
   const [selectedPatient, setSelectedPatient] = useState<{ value: any; label: any } | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<{ value: any; label: any } | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<{ value: any; label: any }[]>([]);
   const [attendanceType, setAttendanceType] = useState<{ value: string; label: string } | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -41,8 +41,14 @@ const FormModalBookings = ({
   const fetchBookingDetails = (bookingId: number) => {
     const booking = bookings.find((b) => b.id === bookingId);
     if (booking) {
+      // Convert booking medications to the format expected by the multi-select
+      const selectedMedications = booking.bookingMedications?.map((bm: any) => ({
+        value: bm.medication.id,
+        label: bm.medication.name
+      })) || [];
+
       setEditForm({
-        medication_id: booking.medication_id,
+        selectedMedications,
         attendance_type: booking.attendance_type,
         booking_StartdateTime: booking.booking_StartdateTime.slice(0, 16),
         booking_EnddateTime: booking.booking_EnddateTime.slice(0, 16),
@@ -83,7 +89,7 @@ const FormModalBookings = ({
       },
       body: JSON.stringify({
         patient_id: selectedPatient?.value,
-        medication_id: selectedProduct?.value,
+        medication_ids: selectedProducts.map(p => p.value),
         attendance_type: attendanceType?.value,
         booking_StartdateTime: startDate,
         booking_EnddateTime: endDate,
@@ -137,7 +143,7 @@ const FormModalBookings = ({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: editBookingId,
-        medication_id: editForm.medication_id,
+        medication_ids: editForm.selectedMedications?.map((m: any) => m.value) || [],
         attendance_type: editForm.attendance_type,
         booking_StartdateTime: startISO,
         booking_EnddateTime: endISO,
@@ -145,12 +151,10 @@ const FormModalBookings = ({
     });
     if (response.ok) {
       toast("Marcação atualizada com sucesso!", { type: "success", autoClose: 2000 });
-      setBookings((prev) =>
-        prev.map((b) => (b.id === editBookingId ? { ...b, ...editForm } : b))
-      );
+      // Refresh the bookings to get updated data
+      fetchBookings();
       setEditBookingId(null);
       setEditForm(null);
-      setOpen(false);
     } else {
       alert("Ocorreu um erro ao atualizar.");
     }
@@ -215,8 +219,10 @@ const FormModalBookings = ({
                 />
                 <label className="block text-sm font-medium mt-4">Medicação</label>
                 <Select
+                  isMulti
                   options={products.map((p) => ({ value: p.id, label: p.name }))}
-                  onChange={(option) => setSelectedProduct(option)}
+                  onChange={(options) => setSelectedProducts(options || [])}
+                  placeholder="Selecione medicações..."
                 />
                 <label className="block text-sm font-medium mt-4">Atendimento</label>
                 <Select
@@ -290,13 +296,13 @@ const FormModalBookings = ({
                   <div className="mt-4 p-4 bg-gray-100 rounded-md">
                     <label className="block text-sm font-medium mt-2">Medicação</label>
                     <Select
+                      isMulti
                       options={products.map((p) => ({ value: p.id, label: p.name }))}
-                      value={products
-                        .map((p) => ({ value: p.id, label: p.name }))
-                        .find((opt) => opt.value === editForm.medication_id)}
-                      onChange={(option) =>
-                        setEditForm((prev: any) => ({ ...prev, medication_id: option?.value }))
+                      value={editForm.selectedMedications || []}
+                      onChange={(options) =>
+                        setEditForm((prev: any) => ({ ...prev, selectedMedications: options || [] }))
                       }
+                      placeholder="Selecione medicações..."
                     />
                     <label className="block text-sm font-medium mt-2">Atendimento</label>
                     <Select

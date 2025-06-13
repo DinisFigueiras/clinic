@@ -44,17 +44,26 @@ model Medication {
   dosage String
   price Decimal
   supplier String
-  Bookings Bookings[]
+  bookingMedications BookingMedications[]
 }
 model Bookings {
   id Int @id @default(autoincrement())
   patient_id Int
   patient Patient @relation(fields: [patient_id], references: [id])
-  medication_id Int?
-  medication Medication? @relation(fields: [medication_id], references: [id])
   attendance_type PatientAttendance
   booking_StartdateTime DateTime @default(now())
   booking_EnddateTime DateTime @default(now())
+  bookingMedications BookingMedications[]
+}
+
+model BookingMedications {
+  id Int @id @default(autoincrement())
+  booking_id Int
+  medication_id Int
+  booking Bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  medication Medication @relation(fields: [medication_id], references: [id])
+
+  @@unique([booking_id, medication_id])
 }
 
 enum PatientStat {

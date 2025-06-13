@@ -225,15 +225,27 @@ export const deleteMedication = async (currentState:CurrentState,data:FormData) 
 export const createBookings = async (currentState:CurrentState,data:Bookingschema) => {
     try {
         await withPrisma(async (prisma) => {
-            return await prisma.bookings.create({
+            // Create the booking first
+            const newBooking = await prisma.bookings.create({
                 data: {
                     patient_id: data.patient_id,
-                    medication_id: data.medication_id,
                     attendance_type: data.attendance_type,
                     booking_StartdateTime: data.booking_StartdateTime,
                     booking_EnddateTime: data.booking_EnddateTime
                 },
             });
+
+            // Create medication relationships if medications are provided
+            if (data.medication_ids && data.medication_ids.length > 0) {
+                await prisma.bookingMedications.createMany({
+                    data: data.medication_ids.map((medication_id: number) => ({
+                        booking_id: newBooking.id,
+                        medication_id,
+                    })),
+                });
+            }
+
+            return newBooking;
         });
         return {success:true, error:false}
     } catch (err) {
@@ -245,18 +257,35 @@ export const createBookings = async (currentState:CurrentState,data:Bookingschem
 export const updateBookings = async (currentState:CurrentState,data:Bookingschema) => {
     try {
         await withPrisma(async (prisma) => {
-            return await prisma.bookings.update({
+            // Update the booking
+            const updatedBooking = await prisma.bookings.update({
                 where:{
                     id: data.id
                 },
                 data: {
                     patient_id: data.patient_id,
-                    medication_id: data.medication_id,
                     attendance_type: data.attendance_type,
                     booking_StartdateTime: data.booking_StartdateTime,
                     booking_EnddateTime: data.booking_EnddateTime
                 },
             });
+
+            // Delete existing medication relationships
+            await prisma.bookingMedications.deleteMany({
+                where: { booking_id: data.id },
+            });
+
+            // Create new medication relationships if medications are provided
+            if (data.medication_ids && data.medication_ids.length > 0) {
+                await prisma.bookingMedications.createMany({
+                    data: data.medication_ids.map((medication_id: number) => ({
+                        booking_id: data.id,
+                        medication_id,
+                    })),
+                });
+            }
+
+            return updatedBooking;
         });
         return {success:true, error:false}
     } catch (err) {

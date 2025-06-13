@@ -9,7 +9,12 @@ const BigCalendarContainerPatient = async ({ patientId }: { patientId: number })
         patient_id: patientId  // Filter by specific patient ID
       },
       include: {
-        patient: true
+        patient: true,
+        bookingMedications: {
+          include: {
+            medication: true
+          }
+        }
       }
     });
   });

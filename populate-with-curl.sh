@@ -131,7 +131,7 @@ curl -X POST "$BASE_URL/api/bookings/create" \
   -H "Content-Type: application/json" \
   -d "{
     \"patient_id\": 3,
-    \"medication_id\": 8,
+    \"medication_ids\": [8],
     \"attendance_type\": \"Domicilio\",
     \"booking_StartdateTime\": \"${TODAY}T09:00:00.000Z\",
     \"booking_EnddateTime\": \"${TODAY}T09:30:00.000Z\"

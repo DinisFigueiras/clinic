@@ -134,15 +134,24 @@ async function main() {
 
         for (const booking of bookings) {
             await withPrisma(async (prisma) => {
-                await prisma.bookings.create({
+                const newBooking = await prisma.bookings.create({
                     data: {
                         patient_id: booking.patient_id,
-                        medication_id: booking.medication_id,
                         attendance_type: booking.attendance,
                         booking_StartdateTime: booking.start,
                         booking_EnddateTime: booking.end
                     }
                 });
+
+                // Create medication relationship if medication exists
+                if (booking.medication_id) {
+                    await prisma.bookingMedications.create({
+                        data: {
+                            booking_id: newBooking.id,
+                            medication_id: booking.medication_id,
+                        },
+                    });
+                }
             });
             console.log(`✅ Created booking: Patient ${booking.patient_id} - ${booking.attendance} - ${booking.start.toLocaleString()}`);
         }

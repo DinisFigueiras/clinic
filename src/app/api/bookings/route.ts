@@ -44,7 +44,14 @@ export async function GET(req: NextRequest) {
 
       return await prisma.bookings.findMany({
         where,
-        include: { patient: true },
+        include: {
+          patient: true,
+          bookingMedications: {
+            include: {
+              medication: true
+            }
+          }
+        },
         orderBy: { booking_StartdateTime: "asc" },
       });
     });

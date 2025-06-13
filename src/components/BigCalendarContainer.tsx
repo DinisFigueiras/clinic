@@ -6,7 +6,12 @@ const BigCalendarContainer = async () => {
   const dataRes = await withPrisma(async (prisma) => {
     return await prisma.bookings.findMany({
       include: {
-        patient: true
+        patient: true,
+        bookingMedications: {
+          include: {
+            medication: true
+          }
+        }
       }
     });
   });
