@@ -32,12 +32,18 @@ const LoginPage = () => {
 
           <Clerk.GlobalError className='text-sm text-red-400'/>  
           <Clerk.Field name="identifier" className='flex flex-col gap-2'>
-            <Clerk.Label className='text-sm text-gray500'>Utilizador</Clerk.Label>
+            <Clerk.Label className='text-sm text-gray500'>
+              Utilizador
+              <span className="text-red-500 ml-1">*</span>
+            </Clerk.Label>
             <Clerk.Input type='text' required className='p-2 rounded-md ring-1 ring-gray-300'/>
             <Clerk.FieldError className='text-xs text-red-400'/>
           </Clerk.Field>
           <Clerk.Field name="password" className='flex flex-col gap-2'>
-            <Clerk.Label className='text-sm text-gray500'>Senha</Clerk.Label>
+            <Clerk.Label className='text-sm text-gray500'>
+              Senha
+              <span className="text-red-500 ml-1">*</span>
+            </Clerk.Label>
             <Clerk.Input type='password' required className='p-2 rounded-md ring-1 ring-gray-300'/>
             <Clerk.FieldError className='text-xs text-red-400'/>
           </Clerk.Field>

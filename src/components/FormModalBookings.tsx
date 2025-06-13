@@ -212,7 +212,10 @@ const FormModalBookings = ({
             {/* Create Booking Form */}
             {mode === "create" && (
               <div className="mt-4 text-neutral">
-                <label className="block text-sm font-medium">Nome do Paciente</label>
+                <label className="block text-sm font-medium">
+                  Nome do Paciente
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
                 <Select
                   options={patients.map((p) => ({ value: p.id, label: p.name }))}
                   onChange={(option) => setSelectedPatient(option as { value: any; label: any })}
@@ -224,19 +227,28 @@ const FormModalBookings = ({
                   onChange={(options) => setSelectedProducts(options || [])}
                   placeholder="Selecione medicações..."
                 />
-                <label className="block text-sm font-medium mt-4">Atendimento</label>
+                <label className="block text-sm font-medium mt-4">
+                  Atendimento
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
                 <Select
                   options={attendanceOptions}
                   onChange={(option) => setAttendanceType(option)}
                 />
-                <label className="block text-sm font-medium mt-4">Hora de Inicio</label>
+                <label className="block text-sm font-medium mt-4">
+                  Hora de Inicio
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
                 <input
                   type="datetime-local"
                   className="w-full p-2 border rounded"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
-                <label className="block text-sm font-medium mt-4">Hora de Fim</label>
+                <label className="block text-sm font-medium mt-4">
+                  Hora de Fim
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
                 <input
                   type="datetime-local"
                   className="w-full p-2 border rounded"
@@ -304,7 +316,10 @@ const FormModalBookings = ({
                       }
                       placeholder="Selecione medicações..."
                     />
-                    <label className="block text-sm font-medium mt-2">Atendimento</label>
+                    <label className="block text-sm font-medium mt-2">
+                      Atendimento
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
                     <Select
                       options={attendanceOptions}
                       value={attendanceOptions.find((opt) => opt.value === editForm.attendance_type)}
@@ -312,7 +327,10 @@ const FormModalBookings = ({
                         setEditForm((prev: any) => ({ ...prev, attendance_type: option?.value }))
                       }
                     />
-                    <label className="block text-sm font-medium mt-2">Hora de Inicio</label>
+                    <label className="block text-sm font-medium mt-2">
+                      Hora de Inicio
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
                     <input
                       type="datetime-local"
                       className="w-full p-2 border rounded"
@@ -321,7 +339,10 @@ const FormModalBookings = ({
                         setEditForm((prev: any) => ({ ...prev, booking_StartdateTime: e.target.value }))
                       }
                     />
-                    <label className="block text-sm font-medium mt-2">Hora de Fim</label>
+                    <label className="block text-sm font-medium mt-2">
+                      Hora de Fim
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
                     <input
                       type="datetime-local"
                       className="w-full p-2 border rounded"
