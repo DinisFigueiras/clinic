@@ -1,21 +1,34 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
-    // Use environment DATABASE_URL directly (no modifications)
-    const databaseUrl = process.env.DATABASE_URL;
+    // Use environment DATABASE_URL and optimize for Supabase pooler
+    const baseUrl = process.env.DATABASE_URL;
 
-    if (!databaseUrl) {
+    if (!baseUrl) {
         throw new Error('DATABASE_URL environment variable is not set');
     }
 
+    // Validate URL format
+    if (!baseUrl.startsWith('postgresql://') && !baseUrl.startsWith('postgres://')) {
+        console.error('Invalid DATABASE_URL format:', baseUrl.substring(0, 20) + '...');
+        throw new Error('DATABASE_URL must start with postgresql:// or postgres://');
+    }
+
+    // Add pooler optimizations if not already present
+    const optimizedUrl = baseUrl.includes('prepared_statements=false')
+        ? baseUrl
+        : baseUrl.includes('?')
+            ? `${baseUrl}&prepared_statements=false&connection_limit=1`
+            : `${baseUrl}?prepared_statements=false&connection_limit=1`;
+
     // Log the URL being used (hide password for security)
-    console.log('Database URL being used:', databaseUrl.replace(/:[^:@]*@/, ':***@'));
+    console.log('Database URL being used:', optimizedUrl.replace(/:[^:@]*@/, ':***@'));
 
     return new PrismaClient({
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
         datasources: {
             db: {
-                url: databaseUrl
+                url: optimizedUrl
             }
         }
     })
