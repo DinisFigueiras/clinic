@@ -4,14 +4,40 @@ import CalendarApp from "./BigCalendar2";
 
 const BigCalendarContainer = async () => {
   const dataRes = await withPrisma(async (prisma) => {
+    // Only load bookings from 30 days ago to 90 days in the future for better performance
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const ninetyDaysFromNow = new Date();
+    ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+
     return await prisma.bookings.findMany({
+      where: {
+        booking_StartdateTime: {
+          gte: thirtyDaysAgo,
+          lte: ninetyDaysFromNow
+        }
+      },
       include: {
-        patient: true,
+        patient: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
         bookingMedications: {
           include: {
-            medication: true
+            medication: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
           }
         }
+      },
+      orderBy: {
+        booking_StartdateTime: 'asc'
       }
     });
   });

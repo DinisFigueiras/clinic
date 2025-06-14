@@ -6,23 +6,28 @@ import { withPrisma } from "@/lib/prisma";
 const CalendarPage = async ({ searchParams }: { searchParams: Promise<{ [keys: string]: string | undefined }> }) => {
   // Await the searchParams Promise
   const params = await searchParams;
-  // Fetch patients and products directly in the Server Component
+  // Fetch patients and products directly in the Server Component with optimized queries
   const { patients, products } = await withPrisma(async (prisma) => {
-    const patients = await prisma.patient.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    const products = await prisma.medication.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    return { patients, products };
+    return await prisma.$transaction([
+      prisma.patient.findMany({
+        select: {
+          id: true,
+          name: true,
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      }),
+      prisma.medication.findMany({
+        select: {
+          id: true,
+          name: true,
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      })
+    ]).then(([patients, products]) => ({ patients, products }));
   });
 
   return (

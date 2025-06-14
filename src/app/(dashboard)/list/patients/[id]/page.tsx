@@ -26,46 +26,49 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
 
         const today = new Date();
 
-        // Count past bookings (bookings with a start date before today)
-        const pastBookingsCount = await prisma.bookings.count({
-            where: {
-                patient_id: Number(id),
-                booking_StartdateTime: {
-                    lt: today, // Less than today
+        // Use a single transaction to get all data efficiently
+        const [pastBookingsCount, futureBookingsCount, pastBookingsWithMedication] = await prisma.$transaction([
+            // Count past bookings
+            prisma.bookings.count({
+                where: {
+                    patient_id: Number(id),
+                    booking_StartdateTime: { lt: today },
                 },
-            },
-        });
-
-        // Count future bookings (bookings with a start date on or after today)
-        const futureBookingsCount = await prisma.bookings.count({
-            where: {
-                patient_id: Number(id),
-                booking_StartdateTime: {
-                    gte: today, // Greater than or equal to today
+            }),
+            // Count future bookings
+            prisma.bookings.count({
+                where: {
+                    patient_id: Number(id),
+                    booking_StartdateTime: { gte: today },
                 },
-            },
-        });
-
-        // Get all past bookings with medication for this patient
-        const pastBookingsWithMedication = await prisma.bookings.findMany({
-            where: {
-                patient_id: Number(id),
-                booking_StartdateTime: { lt: today },
-                bookingMedications: {
-                    some: {} // Has at least one medication
-                }
-            },
-            include: {
-                bookingMedications: {
-                    include: {
-                        medication: true
+            }),
+            // Get past bookings with medications
+            prisma.bookings.findMany({
+                where: {
+                    patient_id: Number(id),
+                    booking_StartdateTime: { lt: today },
+                    bookingMedications: {
+                        some: {} // Has at least one medication
                     }
-                }
-            },
-            orderBy: {
-                booking_StartdateTime: "asc",
-            },
-        });
+                },
+                include: {
+                    bookingMedications: {
+                        include: {
+                            medication: {
+                                select: {
+                                    id: true,
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: {
+                    booking_StartdateTime: "asc",
+                },
+                take: 50 // Limit to last 50 bookings for performance
+            })
+        ]);
 
         return {
             patient,

@@ -8,7 +8,7 @@ const prismaClientSingleton = () => {
         : `${baseUrl}?prepared_statements=false&connection_limit=1`;
 
     return new PrismaClient({
-        log: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
+        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
         datasources: {
             db: { url }
         }

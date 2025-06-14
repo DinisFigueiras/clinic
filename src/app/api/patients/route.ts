@@ -14,7 +14,22 @@ export async function GET(request: NextRequest) {
 
     const patients = await withPrisma(async (prisma) => {
       return await prisma.patient.findMany({
-        where: { name: { contains: search, mode: "insensitive" } },
+        where: {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { mobile_phone: { contains: search, mode: "insensitive" } }
+          ]
+        },
+        select: {
+          id: true,
+          name: true,
+          mobile_phone: true,
+          email: true
+        },
+        take: 20, // Limit results for better performance
+        orderBy: {
+          name: 'asc'
+        }
       });
     });
 

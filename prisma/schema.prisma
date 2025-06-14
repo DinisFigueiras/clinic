@@ -1,69 +1,76 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DATABASE_URL")
 }
 
 model Admin {
-  id String @id
+  id       String @id
   username String @unique
 }
 
 model Patient {
-  id Int @id
-  email String? @unique
-  name String
-  gender Gender
-  date_of_birth DateTime
-  mobile_phone String @unique
-  nif String? @unique
-  state_type PatientStat // retired or active
-  attendance_type PatientAttendance // clinic or home
-  observations String?
-  address_line1 String
-  address_line2 String?
-  city String
-  postal_code String
-  Bookings Bookings[]
-}
-model Medication {
-  id Int @id
-  name String @unique
-  stock Int
-  type String
-  dosage String
-  price Decimal
-  supplier String
-  bookingMedications BookingMedications[]
-}
-model Bookings {
-  id Int @id @default(autoincrement())
-  patient_id Int
-  patient Patient @relation(fields: [patient_id], references: [id])
+  id              Int               @id
+  email           String?           @unique
+  name            String
+  gender          Gender
+  date_of_birth   DateTime
+  mobile_phone    String            @unique
+  nif             String?           @unique
+  state_type      PatientStat
   attendance_type PatientAttendance
-  booking_StartdateTime DateTime @default(now())
-  booking_EnddateTime DateTime @default(now())
+  observations    String?
+  address_line1   String
+  address_line2   String?
+  city            String
+  postal_code     String
+  Bookings        Bookings[]
+
+  @@index([name]) // Index for name searches
+  @@index([mobile_phone]) // Index for phone searches
+}
+
+model Medication {
+  id                 Int                  @id
+  name               String               @unique
+  stock              Int
+  type               String
+  dosage             String
+  price              Decimal
+  supplier           String
   bookingMedications BookingMedications[]
+
+  @@index([name]) // Index for medication name searches
+}
+
+model Bookings {
+  id                    Int                  @id @default(autoincrement())
+  patient_id            Int
+  attendance_type       PatientAttendance
+  booking_StartdateTime DateTime             @default(now())
+  booking_EnddateTime   DateTime             @default(now())
+  bookingMedications    BookingMedications[]
+  patient               Patient              @relation(fields: [patient_id], references: [id])
+
+  @@index([patient_id]) // Index for patient-specific queries
+  @@index([booking_StartdateTime]) // Index for date-based queries
+  @@index([patient_id, booking_StartdateTime]) // Composite index for patient + date queries
 }
 
 model BookingMedications {
-  id Int @id @default(autoincrement())
-  booking_id Int
+  id            Int        @id @default(autoincrement())
+  booking_id    Int
   medication_id Int
-  booking Bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
-  medication Medication @relation(fields: [medication_id], references: [id])
+  booking       Bookings   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  medication    Medication @relation(fields: [medication_id], references: [id])
 
   @@unique([booking_id, medication_id])
+  @@index([booking_id]) // Index for booking-specific medication queries
+  @@index([medication_id]) // Index for medication-specific booking queries
 }
 
 enum PatientStat {
@@ -71,10 +78,12 @@ enum PatientStat {
   Ativo
   Estudante
 }
+
 enum PatientAttendance {
   Clinica
   Domicilio
 }
+
 enum Gender {
   Masculino
   Feminino
