@@ -59,7 +59,7 @@ const renderRow =(item:Medication) => (
         <td className={`hidden md:table-cell ${item.stock < 5 ? "text-red-500 font-bold" : ""}`}>{item.stock}</td>
         <td className="hidden md:table-cell">{item.type}</td>
         <td className="hidden md:table-cell">{item.dosage}</td>
-        <td className="hidden md:table-cell">{item?.price ? `${item.price.toString()} €`:  "€"}</td>
+        <td className="hidden md:table-cell">{item?.price ? `${Number(item.price).toFixed(2)} €`:  "€"}</td>
         <td className="hidden md:table-cell">{item.supplier}</td>
         <td>
             <div className="flex items-center gap-2">

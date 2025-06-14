@@ -1,16 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
-    const baseUrl = process.env.DATABASE_URL || "";
-    // For serverless environments, disable prepared statements completely
-    const url = baseUrl.includes('?')
-        ? `${baseUrl}&prepared_statements=false&connection_limit=1`
-        : `${baseUrl}?prepared_statements=false&connection_limit=1`;
-
     return new PrismaClient({
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
         datasources: {
-            db: { url }
+            db: {
+                url: process.env.DATABASE_URL
+            }
         }
     })
 }
@@ -19,13 +15,23 @@ declare const globalThis: {
     prismaGlobal: ReturnType<typeof prismaClientSingleton>;
 } & typeof global;
 
-// In production (serverless), create a new client each time to avoid connection issues
-const prisma = process.env.NODE_ENV === 'production'
-    ? prismaClientSingleton()
-    : (globalThis.prismaGlobal ?? prismaClientSingleton())
+// For Supabase pooler, always create fresh connections to avoid prepared statement conflicts
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
-// Use the global Prisma client for all operations
-export function withPrisma<T>(operation: (prisma: PrismaClient) => Promise<T>): Promise<T> {
+// Enhanced wrapper that handles connection pooler issues
+export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise<T>): Promise<T> {
+    // For development with pooler, create a fresh client for each operation
+    if (process.env.NODE_ENV === 'development' && process.env.DATABASE_URL?.includes('pgbouncer=true')) {
+        const freshPrisma = prismaClientSingleton();
+        try {
+            const result = await operation(freshPrisma);
+            return result;
+        } finally {
+            await freshPrisma.$disconnect();
+        }
+    }
+
+    // Use global client for other cases
     return operation(prisma);
 }
 

@@ -50,7 +50,7 @@ export const medicationschema = z.object({
     stock: z.coerce.number().min(1, {message: "Stock é obrigatório"}),
     type:z.string().min(1, {message: "Tipo é obrigatório"}),
     dosage: z.string().min(1, {message: "Dosagem é obrigatório"}),
-    price: z.coerce.number().min(1, {message: "Preço é obrigatório"}),
+    price: z.coerce.number().min(0.01, {message: "Preço é obrigatório"}).multipleOf(0.01, {message: "Preço deve ter no máximo 2 casas decimais"}),
     supplier: z.string().min(1, {message: "Fornecedor é obrigatório"})
   });
 

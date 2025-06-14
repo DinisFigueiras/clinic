@@ -114,12 +114,12 @@ export const updatePatients = async (currentState:CurrentState,data:Patientschem
                 },
                 data: {
                     id: data.id,
-                    email: data.email && data.email.trim() !== "" ? data.email : "",
+                    email: data.email && data.email.trim() !== "" ? data.email : null,
                     name: data.name,
                     gender: data.gender,
                     date_of_birth: data.date_of_birth,
                     mobile_phone: data.mobile_phone,
-                    nif: data.nif && data.nif.trim() !== "" ? data.nif : "",
+                    nif: data.nif && data.nif.trim() !== "" ? data.nif : null,
                     state_type: data.state_type,
                     attendance_type: data.attendance_type,
                     observations: data.observations,
@@ -141,16 +141,42 @@ export const deletePatients = async (currentState:CurrentState,data:FormData) =>
     const id = data.get("id") as string;
     try {
         await withPrisma(async (prisma) => {
-            return await prisma.patient.delete({
-                where:{
-                    id:parseInt(id)
+            // Use transaction to safely delete patient and all related data
+            return await prisma.$transaction(async (tx) => {
+                const patientId = parseInt(id);
+
+                // First, get all bookings for this patient
+                const patientBookings = await tx.bookings.findMany({
+                    where: { patient_id: patientId },
+                    select: { id: true }
+                });
+
+                // Delete all booking medications for these bookings
+                if (patientBookings.length > 0) {
+                    await tx.bookingMedications.deleteMany({
+                        where: {
+                            booking_id: {
+                                in: patientBookings.map(booking => booking.id)
+                            }
+                        }
+                    });
+
+                    // Delete all bookings for this patient
+                    await tx.bookings.deleteMany({
+                        where: { patient_id: patientId }
+                    });
                 }
+
+                // Finally, delete the patient
+                return await tx.patient.delete({
+                    where: { id: patientId }
+                });
             });
         });
         return {success:true, error:false}
     } catch (err) {
         console.log(err)
-        return{success:false, error:true}
+        return{success:false, error:err instanceof Error ? err.message : "Failed to delete patient"}
     }
 };
 

@@ -64,7 +64,16 @@ const MedicationForm = ({
                 <InputField label="Stock" inputName="stock" type="number" defaultValue={data?.stock} register={register} error={errors?.stock} required={true}/>
                 <InputField label="Tipo do produto" inputName="type" defaultValue={data?.type} register={register} error={errors?.type} required={true}/>
                 <InputField label="Dosagem do produto" inputName="dosage" defaultValue={data?.dosage} register={register} error={errors?.dosage} required={true}/>
-                <InputField label="Preço" inputName="price" type="number" defaultValue={data?.price} register={register} error={errors?.price} required={true}/>
+                <InputField
+                    label="Preço"
+                    inputName="price"
+                    type="number"
+                    defaultValue={data?.price}
+                    register={register}
+                    error={errors?.price}
+                    required={true}
+                    inputProps={{ step: "0.01", min: "0.01", placeholder: "Ex: 12.30" }}
+                />
                 <InputField label="Fornecedor" inputName="supplier" defaultValue={data?.supplier} register={register} error={errors?.supplier} required={true}/>
             </div>
             {/* {state.error && <span className="text-red-500">Erro ao criar o produto</span>} */}

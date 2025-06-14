@@ -65,6 +65,7 @@ model BookingMedications {
   id            Int        @id @default(autoincrement())
   booking_id    Int
   medication_id Int
+  quantity      Int        @default(1) // Quantity of this medication for this booking
   booking       Bookings   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
   medication    Medication @relation(fields: [medication_id], references: [id])
 
