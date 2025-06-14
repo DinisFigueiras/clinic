@@ -22,11 +22,25 @@ const prismaClientSingleton = () => {
 }
 
 declare const globalThis: {
-    prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+    prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
 } & typeof global;
 
-// For Supabase pooler, always create fresh connections to avoid prepared statement conflicts
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
+// Lazy initialization - only create when needed
+let prisma: PrismaClient | undefined;
+
+function getPrismaClient(): PrismaClient {
+    if (!prisma) {
+        if (process.env.NODE_ENV !== 'production' && globalThis.prismaGlobal) {
+            prisma = globalThis.prismaGlobal;
+        } else {
+            prisma = prismaClientSingleton();
+            if (process.env.NODE_ENV !== 'production') {
+                globalThis.prismaGlobal = prisma;
+            }
+        }
+    }
+    return prisma;
+}
 
 // Optimized wrapper for Vercel serverless functions
 export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise<T>): Promise<T> {
@@ -39,8 +53,5 @@ export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise
     }
 }
 
-export default prisma
-
-if (process.env.NODE_ENV !== 'production') {
-    globalThis.prismaGlobal = prisma
-}
+// Export a getter function instead of direct instance
+export default getPrismaClient;

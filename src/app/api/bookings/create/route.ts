@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -13,25 +13,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Create the booking first
-    const newBooking = await prisma.bookings.create({
-      data: {
-        patient_id,
-        attendance_type,
-        booking_StartdateTime: new Date(booking_StartdateTime),
-        booking_EnddateTime: new Date(booking_EnddateTime),
-      },
-    });
-
-    // Create medication relationships if medications are provided
-    if (medication_ids && medication_ids.length > 0) {
-      await prisma.bookingMedications.createMany({
-        data: medication_ids.map((medication_id: number) => ({
-          booking_id: newBooking.id,
-          medication_id,
-        })),
+    const newBooking = await withPrisma(async (prisma) => {
+      // Create the booking first
+      const booking = await prisma.bookings.create({
+        data: {
+          patient_id,
+          attendance_type,
+          booking_StartdateTime: new Date(booking_StartdateTime),
+          booking_EnddateTime: new Date(booking_EnddateTime),
+        },
       });
-    }
+
+      // Create medication relationships if medications are provided
+      if (medication_ids && medication_ids.length > 0) {
+        await prisma.bookingMedications.createMany({
+          data: medication_ids.map((medication_id: number) => ({
+            booking_id: booking.id,
+            medication_id,
+          })),
+        });
+      }
+
+      return booking;
+    });
 
     console.log("New Booking Created:", newBooking);
     return NextResponse.json(newBooking, { status: 201 });

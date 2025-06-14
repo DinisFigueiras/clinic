@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { withPrisma } from "@/lib/prisma";
 
 export async function PUT(request: Request) {
   try {
@@ -10,31 +10,35 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    // Update the booking
-    const updatedBooking = await prisma.bookings.update({
-      where: { id },
-      data: {
-        patient_id,
-        attendance_type,
-        booking_StartdateTime,
-        booking_EnddateTime,
-      },
-    });
-
-    // Delete existing medication relationships
-    await prisma.bookingMedications.deleteMany({
-      where: { booking_id: id },
-    });
-
-    // Create new medication relationships if medications are provided
-    if (medication_ids && medication_ids.length > 0) {
-      await prisma.bookingMedications.createMany({
-        data: medication_ids.map((medication_id: number) => ({
-          booking_id: id,
-          medication_id,
-        })),
+    const updatedBooking = await withPrisma(async (prisma) => {
+      // Update the booking
+      const booking = await prisma.bookings.update({
+        where: { id },
+        data: {
+          patient_id,
+          attendance_type,
+          booking_StartdateTime,
+          booking_EnddateTime,
+        },
       });
-    }
+
+      // Delete existing medication relationships
+      await prisma.bookingMedications.deleteMany({
+        where: { booking_id: id },
+      });
+
+      // Create new medication relationships if medications are provided
+      if (medication_ids && medication_ids.length > 0) {
+        await prisma.bookingMedications.createMany({
+          data: medication_ids.map((medication_id: number) => ({
+            booking_id: id,
+            medication_id,
+          })),
+        });
+      }
+
+      return booking;
+    });
 
     return NextResponse.json(updatedBooking, { status: 200 });
   } catch (error) {
