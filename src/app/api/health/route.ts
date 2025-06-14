@@ -29,6 +29,7 @@ export async function GET() {
       database: dbStatus,
       environment: envCheck,
       metrics,
+      version: '1.0.1', // Trigger redeploy to pick up environment variables
     });
   } catch (error) {
     console.error('Health check failed:', error);
