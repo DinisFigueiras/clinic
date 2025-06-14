@@ -5,9 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:analyze": "ANALYZE=true npm run build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "lint:fix": "next lint --fix",
+    "postinstall": "prisma generate",
+    "prebuild": "npm run lint",
+    "postbuild": "node scripts/check-build-size.js",
+    "type-check": "tsc --noEmit",
+    "clean": "rmdir /s /q .next 2>nul & rmdir /s /q out 2>nul & rmdir /s /q node_modules\\.cache 2>nul & echo Clean completed",
+    "deploy:check": "npm run build && npm run type-check"
   },
   "dependencies": {
     "@clerk/elements": "^0.22.20",

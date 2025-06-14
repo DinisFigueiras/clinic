@@ -224,7 +224,7 @@ const FormModalBookings = ({
                 <Select
                   isMulti
                   options={products.map((p) => ({ value: p.id, label: p.name }))}
-                  onChange={(options) => setSelectedProducts(options || [])}
+                  onChange={(options) => setSelectedProducts(options ? [...options] : [])}
                   placeholder="Selecione medicações..."
                 />
                 <label className="block text-sm font-medium mt-4">
@@ -312,7 +312,7 @@ const FormModalBookings = ({
                       options={products.map((p) => ({ value: p.id, label: p.name }))}
                       value={editForm.selectedMedications || []}
                       onChange={(options) =>
-                        setEditForm((prev: any) => ({ ...prev, selectedMedications: options || [] }))
+                        setEditForm((prev: any) => ({ ...prev, selectedMedications: options ? [...options] : [] }))
                       }
                       placeholder="Selecione medicações..."
                     />
