@@ -2,10 +2,6 @@
   command = "npm ci --prefer-offline --no-audit --no-fund && npm run build"
   publish = ".next"
 
-# Ignore large files that aren't needed for deployment
-[build.ignore]
-  command = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
-
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
