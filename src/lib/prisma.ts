@@ -1,17 +1,22 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
-    // Use direct database URL (not pooler) for better reliability
+    // Force use of direct database URL
     const baseUrl = process.env.DATABASE_URL || "";
 
-    // Force direct connection and log the URL being used
-    console.log('Database URL being used:', baseUrl.replace(/:[^:@]*@/, ':***@'));
+    // Ensure we're using the direct URL, not pooler
+    const directUrl = baseUrl.includes('pooler.supabase.com')
+        ? baseUrl.replace('aws-0-eu-west-1.pooler.supabase.com', 'db.lawrznvawnannbnekjtk.supabase.co')
+        : baseUrl;
+
+    // Log the URL being used (hide password)
+    console.log('Database URL being used:', directUrl.replace(/:[^:@]*@/, ':***@'));
 
     return new PrismaClient({
-        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+        log: ['error', 'warn'],
         datasources: {
             db: {
-                url: baseUrl
+                url: directUrl
             }
         }
     })
