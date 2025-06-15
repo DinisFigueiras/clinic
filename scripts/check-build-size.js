@@ -61,18 +61,18 @@ const VERCEL_SITE_SIZE_LIMIT = 100 * 1024 * 1024; // 100MB (soft limit)
 console.log('\n🚦 Vercel Free Tier Status:');
 console.log('===========================');
 
-if (totalSize > NETLIFY_SITE_SIZE_LIMIT) {
-  console.log('⚠️  WARNING: Build size exceeds recommended limit for Netlify free tier');
+if (totalSize > VERCEL_SITE_SIZE_LIMIT) {
+  console.log('⚠️  WARNING: Build size exceeds recommended limit for Vercel free tier');
 } else {
-  console.log('✅ Build size is within Netlify free tier limits');
+  console.log('✅ Build size is within Vercel free tier limits');
 }
 
-if (serverSize > NETLIFY_FUNCTION_SIZE_LIMIT) {
-  console.log('❌ ERROR: Server bundle exceeds Netlify function size limit');
+if (serverSize > VERCEL_FUNCTION_SIZE_LIMIT) {
+  console.log('❌ ERROR: Server bundle exceeds Vercel function size limit');
   process.exit(1);
 } else {
   console.log('✅ Server bundle size is acceptable');
 }
 
-console.log(`\n📈 Usage: ${((totalSize / NETLIFY_SITE_SIZE_LIMIT) * 100).toFixed(1)}% of recommended limit`);
+console.log(`\n📈 Usage: ${((totalSize / VERCEL_SITE_SIZE_LIMIT) * 100).toFixed(1)}% of recommended limit`);
 console.log('');
