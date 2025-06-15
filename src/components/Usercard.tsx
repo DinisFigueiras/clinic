@@ -1,10 +1,11 @@
 import { withPrisma } from "@/lib/prisma"
-import { Record } from "@prisma/client/runtime/library"
 import Image from "next/image"
-import { unknown } from "zod"
 
+/**
+ * Displays count cards for different entity types (Patients, Bookings, Medications)
+ */
 const UserCard = async ({type}:{type: "Utentes" | "Marcações" | "Produtos" }) => {
-
+    // Get count based on card type
     const data = await withPrisma(async (prisma) => {
         switch (type) {
             case "Utentes":

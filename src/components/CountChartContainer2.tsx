@@ -1,10 +1,11 @@
-import Image from "next/image"
-import CountChart from "./CountChart"
-import { withPrisma } from "@/lib/prisma"
 import CountChart2 from "./CountChart2"
+import { withPrisma } from "@/lib/prisma"
 
+/**
+ * Container component for state type chart (Retired vs Active)
+ */
 const CountChartContainer2 = async () => {
-
+    // Fetch patient counts grouped by state type
     const data = await withPrisma(async (prisma) => {
         return await prisma.patient.groupBy({
             by:["state_type"],
@@ -14,14 +15,9 @@ const CountChartContainer2 = async () => {
 
     const reformado = data.find(d => d.state_type === "Reformado")?._count || 0
     const ativo = data.find(d => d.state_type === "Ativo")?._count || 0
+
     return(
         <div className='bg-white rounded-xl w-full h-full p-4'>
-            {/* TITLE */}
-            {/* <div className='flex justify-between items-center'>
-                <h1 className='text-lg font-semibold'>Utentes</h1>
-                <Image src="/moreDark.png" alt="" width={20} height={20}/>
-            </div> */}
-            {/* CHART */}
             <CountChart2 reformado={reformado} ativo={ativo}></CountChart2>
             {/* BOTTOM*/}
             <div className='flex justify-center gap-16 '>

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { withPrisma } from '@/lib/prisma';
 
+/**
+ * Health check endpoint for monitoring application and database status
+ * GET /api/health
+ */
 export async function GET() {
   try {
     // Check database connection

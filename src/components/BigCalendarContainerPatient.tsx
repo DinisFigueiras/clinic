@@ -2,11 +2,15 @@ import { withPrisma } from "@/lib/prisma";
 import moment from 'moment-timezone';
 import CalendarApp from "./BigCalendar2";
 
+/**
+ * Calendar container for displaying a specific patient's bookings
+ */
 const BigCalendarContainerPatient = async ({ patientId }: { patientId: number }) => {
+  // Fetch all bookings for the specific patient
   const dataRes = await withPrisma(async (prisma) => {
     return await prisma.bookings.findMany({
       where: {
-        patient_id: patientId  // Filter by specific patient ID
+        patient_id: patientId
       },
       include: {
         patient: true,
@@ -19,7 +23,8 @@ const BigCalendarContainerPatient = async ({ patientId }: { patientId: number })
     });
   });
 
-  const data1 = dataRes.map(booking => ({
+  // Transform booking data for calendar display
+  const calendarEvents = dataRes.map(booking => ({
     id: booking.id,
     title: booking.patient.name,
     start: moment(booking.booking_StartdateTime).format('YYYY-MM-DD HH:mm'),
@@ -27,17 +32,9 @@ const BigCalendarContainerPatient = async ({ patientId }: { patientId: number })
     state: booking.attendance_type
   }));
 
-  const data2 = dataRes.map(booking => ({
-    id: booking.id,
-    title: booking.patient.name,
-    start: new Date(booking.booking_StartdateTime),
-    end: new Date(booking.booking_EnddateTime),
-  }));
-
   return (
     <div className="">
-      {/* <BigCalendar data={data2}/> */}
-      <CalendarApp data={data1} />
+      <CalendarApp data={calendarEvents} />
     </div>
   );
 };

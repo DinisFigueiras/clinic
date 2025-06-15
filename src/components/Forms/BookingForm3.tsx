@@ -47,15 +47,14 @@ const BookingsForm3 = ({ patients, products, type, data, setOpen }: { patients: 
     { success: false, error: false }
   );
 
+  // Form submission handler with validation
   const onsubmit = handleSubmit((data) => {
-    console.log("Form Data Submitted:", data);  // Log to check if patient_id is set
-  
-    // Check if patient_id is undefined and handle it appropriately
+    // Validate patient selection before submission
     if (data.patient_id === undefined || data.patient_id === null) {
-      console.error("Patient ID is missing!");  // Log the error
-      return; // Stop submission if patient_id is not set
+      toast.error("Por favor selecione um paciente!");
+      return;
     }
-  
+
     startTransition(() => {
       formAction(data);
     });

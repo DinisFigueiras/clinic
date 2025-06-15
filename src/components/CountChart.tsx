@@ -1,13 +1,16 @@
 "use client";
 import Image from 'next/image';
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 
-
+/**
+ * Radial bar chart component for displaying attendance type distribution
+ */
 const CountChart = ({clinica, domicilio}:{clinica: number, domicilio:number}) => {
+    // Chart data configuration
     const data = [
         {
           name: 'Total',
-          count: clinica+domicilio,
+          count: clinica + domicilio,
           fill: 'transparent',
         },
         {
@@ -20,7 +23,6 @@ const CountChart = ({clinica, domicilio}:{clinica: number, domicilio:number}) =>
           count: clinica,
           fill: '#afd6ff',
         },
-        
       ];
 
 

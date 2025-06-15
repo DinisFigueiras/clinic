@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Delete a booking by ID
+ * DELETE /api/bookings/delete
+ */
 export async function DELETE(request: Request) {
   try {
     const { id } = await request.json(); // Expect the booking ID in the request body

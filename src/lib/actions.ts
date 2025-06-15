@@ -3,9 +3,13 @@ import { Bookingschema, Medicationschema, Patientschema } from "./formValidation
 import { withPrisma } from "./prisma"
 
 type CurrentState = {success:boolean;error:boolean | string}
-{/* -----------------------------PATIENTS------------------------------------------------*/}
-{/*PATIENTS CREATE*/}
-export const createPatients = async (currentState:CurrentState,data:Patientschema) => {
+
+// ============================= PATIENTS =====================================
+
+/**
+ * Creates a new patient with validation for unique fields
+ */
+export const createPatients = async (_currentState:CurrentState,data:Patientschema) => {
     try {
         await withPrisma(async (prisma) => {
             // Check if mobile_phone already exists
@@ -63,12 +67,14 @@ export const createPatients = async (currentState:CurrentState,data:Patientschem
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error creating patient:", err);
         return{success:false, error:err instanceof Error ? err.message : true}
     }
 };
-{/*PATIENTS UPDATE*/}
-export const updatePatients = async (currentState:CurrentState,data:Patientschema) => {
+/**
+ * Updates an existing patient with validation for unique fields
+ */
+export const updatePatients = async (_currentState:CurrentState,data:Patientschema) => {
     try {
         await withPrisma(async (prisma) => {
             // Check if another patient already has this mobile_phone
@@ -132,12 +138,15 @@ export const updatePatients = async (currentState:CurrentState,data:Patientschem
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error updating patient:", err);
         return{success:false, error:err instanceof Error ? err.message : true}
     }
 };
-{/*PATIENTS DELETE*/}
-export const deletePatients = async (currentState:CurrentState,data:FormData) => {
+
+/**
+ * Deletes a patient and all related bookings and medications
+ */
+export const deletePatients = async (_currentState:CurrentState,data:FormData) => {
     const id = data.get("id") as string;
     try {
         await withPrisma(async (prisma) => {
@@ -175,14 +184,17 @@ export const deletePatients = async (currentState:CurrentState,data:FormData) =>
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error deleting patient:", err);
         return{success:false, error:err instanceof Error ? err.message : "Failed to delete patient"}
     }
 };
 
-{/* -----------------------------PRODUCTS------------------------------------------------*/}
-{/*PRODUCTS CREATE*/}
-export const createMedication = async (currentState:CurrentState,data:Medicationschema) => {
+// ============================= MEDICATIONS =====================================
+
+/**
+ * Creates a new medication
+ */
+export const createMedication = async (_currentState:CurrentState,data:Medicationschema) => {
     try {
         await withPrisma(async (prisma) => {
             return await prisma.medication.create({
@@ -199,12 +211,15 @@ export const createMedication = async (currentState:CurrentState,data:Medication
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error creating medication:", err);
         return{success:false, error:err instanceof Error ? err.message : true}
     }
 };
-{/*PRODUCTS UPDATE*/}
-export const updateMedication = async (currentState:CurrentState,data:Medicationschema) => {
+
+/**
+ * Updates an existing medication
+ */
+export const updateMedication = async (_currentState:CurrentState,data:Medicationschema) => {
     try {
         await withPrisma(async (prisma) => {
             return await prisma.medication.update({
@@ -224,13 +239,15 @@ export const updateMedication = async (currentState:CurrentState,data:Medication
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error updating medication:", err);
         return{success:false, error:true}
     }
 };
-{/*PRODUCTS DELETE*/}
-export const deleteMedication = async (currentState:CurrentState,data:FormData) => {
 
+/**
+ * Deletes a medication
+ */
+export const deleteMedication = async (_currentState:CurrentState,data:FormData) => {
     const id = data.get("id") as string;
     try {
         await withPrisma(async (prisma) => {
@@ -242,13 +259,17 @@ export const deleteMedication = async (currentState:CurrentState,data:FormData) 
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error deleting medication:", err);
         return{success:false, error:true}
     }
 };
 
-{/* -----------------------------BOOKINGS------------------------------------------------*/}
-export const createBookings = async (currentState:CurrentState,data:Bookingschema) => {
+// ============================= BOOKINGS =====================================
+
+/**
+ * Creates a new booking with optional medication associations
+ */
+export const createBookings = async (_currentState:CurrentState,data:Bookingschema) => {
     try {
         await withPrisma(async (prisma) => {
             // Create the booking first
@@ -275,12 +296,15 @@ export const createBookings = async (currentState:CurrentState,data:Bookingschem
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error creating booking:", err);
         return{success:false, error:err instanceof Error ? err.message : true}
     }
 };
-{/*BOOKINGS UPDATE*/}
-export const updateBookings = async (currentState:CurrentState,data:Bookingschema) => {
+
+/**
+ * Updates an existing booking and its medication associations
+ */
+export const updateBookings = async (_currentState:CurrentState,data:Bookingschema) => {
     try {
         await withPrisma(async (prisma) => {
             // Update the booking
@@ -315,13 +339,15 @@ export const updateBookings = async (currentState:CurrentState,data:Bookingschem
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error updating booking:", err);
         return{success:false, error:true}
     }
 };
-{/*BOOKINGS DELETE*/}
-export const deleteBookings = async (currentState:CurrentState,data:FormData) => {
 
+/**
+ * Deletes a booking
+ */
+export const deleteBookings = async (_currentState:CurrentState,data:FormData) => {
     const id = data.get("id") as string;
     try {
         await withPrisma(async (prisma) => {
@@ -333,7 +359,7 @@ export const deleteBookings = async (currentState:CurrentState,data:FormData) =>
         });
         return {success:true, error:false}
     } catch (err) {
-        console.log(err)
+        console.error("Error deleting booking:", err);
         return{success:false, error:true}
     }
 };

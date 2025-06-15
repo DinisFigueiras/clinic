@@ -1,9 +1,11 @@
-import Image from "next/image"
 import CountChart from "./CountChart"
 import { withPrisma } from "@/lib/prisma"
 
+/**
+ * Container component for attendance type chart (Clinic vs Home)
+ */
 const CountChartContainer = async () => {
-
+    // Fetch patient counts grouped by attendance type
     const data = await withPrisma(async (prisma) => {
         return await prisma.patient.groupBy({
             by:["attendance_type"],
@@ -13,14 +15,9 @@ const CountChartContainer = async () => {
 
     const clinica = data.find(d => d.attendance_type === "Clinica")?._count || 0
     const domicilio = data.find(d => d.attendance_type === "Domicilio")?._count || 0
+
     return(
         <div className='bg-white rounded-xl w-full h-full p-4'>
-            {/* TITLE */}
-            {/* <div className='flex justify-between items-center'>
-                <h1 className='text-lg font-semibold text-neutral'>Utentes</h1>
-                <Image src="/moreDark.png" alt="" width={20} height={20}/>
-            </div> */}
-            {/* CHART */}
             <CountChart domicilio={domicilio} clinica={clinica}></CountChart>
             {/* BOTTOM*/}
             <div className='flex justify-center gap-16'>

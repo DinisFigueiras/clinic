@@ -9,6 +9,9 @@ import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } 
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
+/**
+ * Form component for creating and updating medications
+ */
 const MedicationForm = ({
     type,
     data,
@@ -27,24 +30,26 @@ const MedicationForm = ({
         resolver: zodResolver(medicationschema),
         });
 
+    // Form action handler for create/update operations
     const [state, formAction] = useActionState(
-        type=== "create" ? createMedication: updateMedication, {
-        success:false, error:false
-    })  
+        type === "create" ? createMedication : updateMedication, {
+        success: false,
+        error: false
+    })
 
-    const onsubmit = handleSubmit(data =>{
-        console.log(data);
+    // Form submission handler
+    const onsubmit = handleSubmit(data => {
         startTransition(() => {
             formAction(data);
         });
     })
 
-
     const router = useRouter();
-    useEffect(() => {
 
+    // Handle form submission results (success notifications)
+    useEffect(() => {
         if(state.success){
-            toast(`Paciente ${type === "create" ? "criado": "editado"}!`,
+            toast(`Medicamento ${type === "create" ? "criado": "editado"}!`,
                 { type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
             );
             setOpen(false);
@@ -76,12 +81,9 @@ const MedicationForm = ({
                 />
                 <InputField label="Fornecedor" inputName="supplier" defaultValue={data?.supplier} register={register} error={errors?.supplier} required={true}/>
             </div>
-            {/* {state.error && <span className="text-red-500">Erro ao criar o produto</span>} */}
-
             <button className="bg-blue text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
         </form>
     )
 };
 
 export default MedicationForm
- {/*4h31min34 */}

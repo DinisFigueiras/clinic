@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Bookings API endpoint with filtering support
+ * GET /api/bookings?week=true&date=2024-01-01&patientId=1&futureOnly=true
+ */
 export async function GET(req: NextRequest) {
   try {
+    // Extract query parameters for filtering
     const { searchParams } = new URL(req.url);
     const week = searchParams.get("week");
     const date = searchParams.get("date");

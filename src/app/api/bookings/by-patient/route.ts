@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Get bookings for a specific patient
+ * GET /api/bookings/by-patient?patientId=1
+ */
 export async function POST(request: Request) {
   try {
     const { patientName } = await request.json();

@@ -1,7 +1,10 @@
+/**
+ * Generic table component with sorting support
+ */
 const Table = ({
     columns,
     renderRow,
-    data, 
+    data,
     sort,
 }: {
     columns: { header: string; accessor:string; className?: string }[];

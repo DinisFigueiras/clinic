@@ -39,7 +39,7 @@ const PerformanceMonitor = () => {
             const lastEntry = entries[entries.length - 1];
             metrics.largestContentfulPaint = lastEntry.startTime;
             
-            // Log performance metrics (only in development for debugging)
+            // Log performance metrics in development for debugging
             if (process.env.NODE_ENV === 'development') {
               console.log('Performance Metrics:', metrics);
             }

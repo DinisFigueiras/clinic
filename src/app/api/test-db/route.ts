@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Database connectivity test endpoint with sample data counts
+ * GET /api/test-db
+ */
 export async function GET() {
   try {
     // Test database connection using the optimized wrapper

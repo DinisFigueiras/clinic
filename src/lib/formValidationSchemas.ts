@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+/**
+ * Zod validation schemas for form data validation
+ */
+
+// Patient form validation schema
 export const patientschema = z.object({
     id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
     email: z.string().optional().refine((val) => !val || val === "" || z.string().email().safeParse(val).success, {
@@ -44,6 +49,7 @@ export const patientschema = z.object({
 
 export type Patientschema = z.infer<typeof patientschema>;
 
+// Medication form validation schema
 export const medicationschema = z.object({
     id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
     name: z.string().min(1, { message: 'Nome do produto é obrigatório' }),
@@ -56,6 +62,7 @@ export const medicationschema = z.object({
 
 export type Medicationschema = z.infer<typeof medicationschema>;
 
+// Booking form validation schema
 export const bookingschema = z.object({
     id: z.coerce.number(),
     patient_id: z.coerce.number().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(20, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),

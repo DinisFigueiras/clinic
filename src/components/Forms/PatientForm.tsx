@@ -8,6 +8,9 @@ import { createPatients, updatePatients } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
+/**
+ * Form component for creating and updating patients
+ */
 const PatientForm = ({
     type,
     data,
@@ -26,6 +29,7 @@ const PatientForm = ({
         resolver: zodResolver(patientschema),
         });
 
+    // Form action handler for create/update operations
     const [state, formAction] = useActionState(
     async (
         state: { success: boolean; error: boolean | string },
@@ -40,21 +44,23 @@ const PatientForm = ({
     { success: false, error: false }
     );
 
+    // Form submission handler
     const onsubmit = handleSubmit(data => {
         startTransition(() => {
             formAction(data);
         });
     })
 
+    // Helper function to format date for input field
     const formatDateForInput = (date: string | Date | undefined) => {
         if (!date) return "";
-        const d = new Date(date); // Parse the date
+        const d = new Date(date);
         return d.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
     };
 
-    console.log("Patient data:", data);
-
     const router = useRouter();
+
+    // Handle form submission results (success/error notifications)
     useEffect(() => {
         if(state.success){
             toast(`Paciente ${type === "create" ? "criado": "editado"}!`,

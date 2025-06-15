@@ -6,16 +6,16 @@ import {
   createViewMonthAgenda,
   createViewMonthGrid,
   createViewWeek,
-  viewWeek,
 } from '@schedule-x/calendar'
 import { createEventsServicePlugin } from '@schedule-x/events-service'
-
-import '@schedule-x/theme-default/dist/index.css'
-import { useEffect, useState } from "react";
 import { createEventModalPlugin } from '@schedule-x/event-modal'
 import { createCurrentTimePlugin } from '@schedule-x/current-time'
-import { TimeGrid } from 'react-big-calendar'
+import '@schedule-x/theme-default/dist/index.css'
+import { useEffect, useState } from "react";
 
+/**
+ * Event interface for calendar bookings
+ */
 interface Event {
   id: number;
   title: string;
@@ -24,25 +24,32 @@ interface Event {
   state: string;
 }
 
+/**
+ * Calendar configuration for Portuguese locale
+ */
 const config = {
     locale: 'pt-PT',
-    firstDayOfWeek: 1,
+    firstDayOfWeek: 1, // Monday
     dayBoundaries: {
-    start: '07:00',
-    end: '24:00',
+        start: '07:00',
+        end: '24:00',
     },
 }
 
-
+/**
+ * Main calendar component using ScheduleX
+ */
 const CalendarApp = ({ data }: { data: Event[] }) => {
   const [events, setEvents] = useState<Event[]>(data);
 
+  // Calendar plugins for enhanced functionality
   const plugins = [
     createEventsServicePlugin(),
     createEventModalPlugin(),
-    createCurrentTimePlugin(
-      {fullWeekWidth: true,
-      timeZoneOffset: 0})
+    createCurrentTimePlugin({
+      fullWeekWidth: true,
+      timeZoneOffset: 0
+    })
   ]
 
   const calendar: any = useNextCalendarApp({

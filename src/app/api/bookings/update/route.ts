@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Update a booking with new data and medication associations
+ * PUT /api/bookings/update
+ */
 export async function PUT(request: Request) {
   try {
     const { id, patient_id, medication_ids, attendance_type, booking_StartdateTime, booking_EnddateTime } =

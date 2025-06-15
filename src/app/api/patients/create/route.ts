@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Creates a new patient in the database
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("Creating patient with data:", body);
 
     const { 
       id, 
@@ -73,7 +75,6 @@ export async function POST(request: Request) {
       });
     });
 
-    console.log("New Patient Created:", newPatient);
     return NextResponse.json(newPatient, { status: 201 });
   } catch (error) {
     console.error("Error creating patient:", error);

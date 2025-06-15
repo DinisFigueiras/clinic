@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Tailwind CSS configuration for clinic management system
+ */
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,11 +11,7 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
+      // Custom color palette for clinic theme
       colors:{
         blue:'#6fb5ff',
         blueLight:'#afd6ff',

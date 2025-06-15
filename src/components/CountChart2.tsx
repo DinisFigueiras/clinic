@@ -1,11 +1,16 @@
 "use client"
 import Image from 'next/image';
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
+
+/**
+ * Radial bar chart component for displaying state type distribution (Retired vs Active)
+ */
 const CountChart2 = ({reformado, ativo}:{reformado: number, ativo:number}) => {
+    // Chart data configuration
     const data = [
     {
         name: 'Total',
-        count: reformado+ativo,
+        count: reformado + ativo,
         fill: 'transparent',
     },
     {
@@ -18,7 +23,6 @@ const CountChart2 = ({reformado, ativo}:{reformado: number, ativo:number}) => {
         count: reformado,
         fill: '#afd6ff',
     },
-    
     ];
 
   return(

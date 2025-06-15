@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Creates a new medication in the database
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("Creating medication with data:", body);
-
     const { id, name, stock, type, dosage, price, supplier } = body;
 
     // Validate required fields
@@ -35,7 +36,6 @@ export async function POST(request: Request) {
       });
     });
 
-    console.log("New Medication Created:", newMedication);
     return NextResponse.json(newMedication, { status: 201 });
   } catch (error) {
     console.error("Error creating medication:", error);

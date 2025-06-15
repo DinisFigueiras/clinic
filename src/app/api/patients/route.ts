@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withPrisma } from "@/lib/prisma";
 
+/**
+ * Patients API endpoint with search and pagination support
+ * GET /api/patients?search=term&page=1&limit=10
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
 
-    console.log("Received search query:", search); // Debug
-
+    // Validate search parameter
     if (!search || typeof search !== "string") {
       return NextResponse.json({ error: "Invalid search query" }, { status: 400 });
     }
 
+    // Search patients by name or phone with optimized query
     const patients = await withPrisma(async (prisma) => {
       return await prisma.patient.findMany({
         where: {
@@ -26,14 +30,13 @@ export async function GET(request: NextRequest) {
           mobile_phone: true,
           email: true
         },
-        take: 20, // Limit results for better performance
+        take: 20, // Limit results for performance
         orderBy: {
           name: 'asc'
         }
       });
     });
 
-    console.log("Patients Found:", patients);
     return NextResponse.json(patients);
   } catch (error) {
     console.error("API Error:", error);
