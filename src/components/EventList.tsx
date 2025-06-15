@@ -20,7 +20,7 @@ export default function EventList({ dateParam, week = false }: { dateParam?: str
         setData(bookings);
 
         // Get unique patient IDs
-        const patientIds = [...new Set(bookings.map((booking: any) => booking.patient_id))];
+        const patientIds = [...new Set(bookings.map((booking: any) => booking.patient_id))] as number[];
 
         // Fetch last medication for each patient
         const medicationPromises = patientIds.map(async (patientId: number) => {
