@@ -32,10 +32,21 @@ export async function GET(req: NextRequest) {
           lte: new Date(weekEnd.setHours(23, 59, 59, 999)),
         };
       } else if (date) {
-        const d = new Date(date);
+        // Handle date string in YYYY-MM-DD format for Portuguese timezone
+        const [year, month, day] = date.split('-').map(Number);
+
+        // Create dates in Portuguese timezone (Europe/Lisbon)
+        const startOfDay = new Date();
+        startOfDay.setFullYear(year, month - 1, day);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setFullYear(year, month - 1, day);
+        endOfDay.setHours(23, 59, 59, 999);
+
         where.booking_StartdateTime = {
-          gte: new Date(d.setHours(0, 0, 0, 0)),
-          lte: new Date(d.setHours(23, 59, 59, 999)),
+          gte: startOfDay,
+          lte: endOfDay,
         };
       } else if (futureOnly === 'true') {
         where.booking_StartdateTime = {

@@ -18,7 +18,11 @@ const EventCalendar = ({onDaySelect}: EventCalendarProps) => {
     const handleChange = (val: Value) => {
         setValue(val);
         if (val instanceof Date) {
-        onDaySelect(val.toISOString());
+            // Format as YYYY-MM-DD to avoid timezone issues
+            const year = val.getFullYear();
+            const month = String(val.getMonth() + 1).padStart(2, '0');
+            const day = String(val.getDate()).padStart(2, '0');
+            onDaySelect(`${year}-${month}-${day}`);
         }
     };
 
