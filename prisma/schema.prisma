@@ -35,7 +35,7 @@ model Patient {
 }
 
 model Medication {
-  id                 Int                  @id
+  id                 Int                  @id @default(autoincrement())
   name               String               @unique
   stock              Int
   type               String

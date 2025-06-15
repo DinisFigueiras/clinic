@@ -192,15 +192,22 @@ export const deletePatients = async (_currentState:CurrentState,data:FormData) =
 export const createMedication = async (_currentState:CurrentState,data:Medicationschema) => {
     try {
         await withPrisma(async (prisma) => {
+            // Get the next available ID
+            const lastMedication = await prisma.medication.findFirst({
+                orderBy: { id: 'desc' },
+                select: { id: true }
+            });
+            const nextId = lastMedication ? lastMedication.id + 1 : 1;
+
             return await prisma.medication.create({
                 data: {
-                    id: data.id,
+                    id: nextId, // Use calculated next ID until migration is applied
                     name: data.name,
-                    stock: data.stock,
-                    type: data.type,
-                    dosage: data.dosage,
-                    price: data.price,
-                    supplier: data.supplier
+                    stock: data.stock || 0, // Default to 0 if not provided
+                    type: data.type || "", // Default to empty string if not provided
+                    dosage: data.dosage || "", // Default to empty string if not provided
+                    price: data.price || 0, // Default to 0 if not provided
+                    supplier: data.supplier || "" // Default to empty string if not provided
                 },
             });
         });
@@ -224,11 +231,11 @@ export const updateMedication = async (_currentState:CurrentState,data:Medicatio
                 data: {
                     id: data.id,
                     name: data.name,
-                    stock: data.stock,
-                    type: data.type,
-                    dosage: data.dosage,
-                    price: data.price,
-                    supplier: data.supplier
+                    stock: data.stock || 0, // Default to 0 if not provided
+                    type: data.type || "", // Default to empty string if not provided
+                    dosage: data.dosage || "", // Default to empty string if not provided
+                    price: data.price || 0, // Default to 0 if not provided
+                    supplier: data.supplier || "" // Default to empty string if not provided
                 },
             });
         });

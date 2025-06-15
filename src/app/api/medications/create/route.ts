@@ -7,11 +7,11 @@ import { withPrisma } from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, stock, type, dosage, price, supplier } = body;
+    const { name, stock, type, dosage, price, supplier } = body;
 
-    // Validate required fields
-    if (!id || !name || !stock || !type || !dosage || !price || !supplier) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    // Validate required fields (only name is mandatory)
+    if (!name) {
+      return NextResponse.json({ error: "Nome do produto é obrigatório" }, { status: 400 });
     }
 
     const newMedication = await withPrisma(async (prisma) => {
@@ -23,15 +23,22 @@ export async function POST(request: Request) {
         throw new Error("Medicamento já existe!");
       }
 
+      // Get the next available ID
+      const lastMedication = await prisma.medication.findFirst({
+        orderBy: { id: 'desc' },
+        select: { id: true }
+      });
+      const nextId = lastMedication ? lastMedication.id + 1 : 1;
+
       return await prisma.medication.create({
         data: {
-          id,
+          id: nextId, // Use calculated next ID until migration is applied
           name,
-          stock: parseInt(stock),
-          type,
-          dosage,
-          price: parseFloat(price),
-          supplier
+          stock: stock ? parseInt(stock) : 0, // Default to 0 if not provided
+          type: type || "", // Default to empty string if not provided
+          dosage: dosage || "", // Default to empty string if not provided
+          price: price ? parseFloat(price) : 0, // Default to 0 if not provided
+          supplier: supplier || "" // Default to empty string if not provided
         }
       });
     });

@@ -81,13 +81,23 @@ export type Patientschema = z.infer<typeof patientschema>;
 
 // Medication form validation schema
 export const medicationschema = z.object({
-    id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
+    id: z.coerce.number().optional(), // ID is optional for create, auto-generated
     name: z.string().min(1, { message: 'Nome do produto é obrigatório' }),
-    stock: z.coerce.number().min(1, {message: "Stock é obrigatório"}),
-    type:z.string().min(1, {message: "Tipo é obrigatório"}),
-    dosage: z.string().min(1, {message: "Dosagem é obrigatório"}),
-    price: z.coerce.number().min(0.01, {message: "Preço é obrigatório"}).multipleOf(0.01, {message: "Preço deve ter no máximo 2 casas decimais"}),
-    supplier: z.string().min(1, {message: "Fornecedor é obrigatório"})
+    stock: z.preprocess(
+        (val) => val === "" || val === null || val === undefined ? undefined : Number(val),
+        z.number().min(0, {message: "Stock deve ser 0 ou superior"}).optional()
+    ),
+    type: z.string().optional(), // Type is optional
+    dosage: z.string().optional(), // Dosage is optional
+    price: z.preprocess(
+        (val) => {
+            if (val === "" || val === null || val === undefined) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? undefined : num;
+        },
+        z.number().min(0, {message: "Preço deve ser 0 ou superior"}).optional()
+    ),
+    supplier: z.string().optional() // Supplier is optional
   });
 
 export type Medicationschema = z.infer<typeof medicationschema>;

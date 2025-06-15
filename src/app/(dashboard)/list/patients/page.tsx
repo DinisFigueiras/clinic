@@ -23,7 +23,7 @@ import { withPrisma } from "@/lib/prisma"
 // Removed columns and renderRow - now handled in PatientListClient component
 
 const PatientsListPage = async () => {
-    // Get initial data for all patients (no search filtering on server)
+    // Get all patients for client-side pagination and filtering
     const initialData = await withPrisma(async (prisma) => {
         return await prisma.patient.findMany({
             select: {
@@ -38,7 +38,7 @@ const PatientsListPage = async () => {
                 city: true,
             },
             orderBy: { name: "asc" },
-            take: 50, // Load first 50 patients for initial display
+            // Load all patients for client-side pagination
         });
     });
 
