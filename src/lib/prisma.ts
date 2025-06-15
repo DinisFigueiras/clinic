@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
-const prismaClientSingleton = () => {
-    // Use environment DATABASE_URL and optimize for Supabase pooler
+// Optimized Prisma client factory for Vercel serverless functions
+const createPrismaClient = () => {
     const baseUrl = process.env.DATABASE_URL;
 
     if (!baseUrl) {
@@ -14,57 +14,55 @@ const prismaClientSingleton = () => {
         throw new Error('DATABASE_URL must start with postgresql:// or postgres://');
     }
 
-    // Add pooler optimizations if not already present
-    const optimizedUrl = baseUrl.includes('prepared_statements=false')
+    // Force Supabase pooler optimizations for Vercel
+    const vercelOptimizedUrl = baseUrl.includes('prepared_statements=false')
         ? baseUrl
         : baseUrl.includes('?')
-            ? `${baseUrl}&prepared_statements=false&connection_limit=1`
-            : `${baseUrl}?prepared_statements=false&connection_limit=1`;
+            ? `${baseUrl}&prepared_statements=false&connection_limit=1&pool_timeout=0`
+            : `${baseUrl}?prepared_statements=false&connection_limit=1&pool_timeout=0`;
 
-    // Log the URL being used (hide password for security)
-    console.log('Database URL being used:', optimizedUrl.replace(/:[^:@]*@/, ':***@'));
+    console.log('Vercel-optimized DB URL:', vercelOptimizedUrl.replace(/:[^:@]*@/, ':***@'));
 
     return new PrismaClient({
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
         datasources: {
             db: {
-                url: optimizedUrl
+                url: vercelOptimizedUrl
             }
         }
-    })
+    });
 }
 
+// Vercel-specific connection management
 declare const globalThis: {
-    prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
+    prismaGlobal: PrismaClient | undefined;
 } & typeof global;
 
-// Lazy initialization - only create when needed
-let prisma: PrismaClient | undefined;
-
-function getPrismaClient(): PrismaClient {
-    if (!prisma) {
-        if (process.env.NODE_ENV !== 'production' && globalThis.prismaGlobal) {
-            prisma = globalThis.prismaGlobal;
-        } else {
-            prisma = prismaClientSingleton();
-            if (process.env.NODE_ENV !== 'production') {
-                globalThis.prismaGlobal = prisma;
-            }
-        }
-    }
-    return prisma;
-}
-
-// Optimized wrapper for Vercel serverless functions
+// For Vercel serverless functions - always use fresh connections
 export async function withPrisma<T>(operation: (prisma: PrismaClient) => Promise<T>): Promise<T> {
-    // For serverless environments, always use fresh connections
-    const freshPrisma = prismaClientSingleton();
+    const prisma = createPrismaClient();
     try {
-        return await operation(freshPrisma);
+        const result = await operation(prisma);
+        return result;
+    } catch (error) {
+        console.error('Prisma operation failed:', error);
+        throw error;
     } finally {
-        await freshPrisma.$disconnect();
+        await prisma.$disconnect();
     }
 }
 
-// Export a getter function instead of direct instance
-export default getPrismaClient;
+// For development only - reuse connection
+function getDevPrismaClient(): PrismaClient {
+    if (!globalThis.prismaGlobal) {
+        globalThis.prismaGlobal = createPrismaClient();
+    }
+    return globalThis.prismaGlobal;
+}
+
+// Export appropriate client based on environment
+const prisma = process.env.NODE_ENV === 'production'
+    ? createPrismaClient() // Always fresh in production
+    : getDevPrismaClient(); // Reuse in development
+
+export default prisma;

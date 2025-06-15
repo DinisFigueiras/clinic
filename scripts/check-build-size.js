@@ -54,12 +54,12 @@ console.log(`📁 Total Build Size: ${formatBytes(totalSize)}`);
 console.log(`🎨 Static Assets: ${formatBytes(staticSize)}`);
 console.log(`⚙️  Server Bundle: ${formatBytes(serverSize)}`);
 
-// Netlify free tier limits
-const NETLIFY_FUNCTION_SIZE_LIMIT = 50 * 1024 * 1024; // 50MB
-const NETLIFY_SITE_SIZE_LIMIT = 100 * 1024 * 1024; // 100MB (soft limit)
+// Vercel free tier limits
+const VERCEL_FUNCTION_SIZE_LIMIT = 50 * 1024 * 1024; // 50MB
+const VERCEL_SITE_SIZE_LIMIT = 100 * 1024 * 1024; // 100MB (soft limit)
 
-console.log('\n🚦 Netlify Free Tier Status:');
-console.log('=============================');
+console.log('\n🚦 Vercel Free Tier Status:');
+console.log('===========================');
 
 if (totalSize > NETLIFY_SITE_SIZE_LIMIT) {
   console.log('⚠️  WARNING: Build size exceeds recommended limit for Netlify free tier');
