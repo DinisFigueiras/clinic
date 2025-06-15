@@ -11,16 +11,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
 
-    // Search medications by name with optimized query
+    // Search medications by name, type, dosage, supplier with optimized query
     const medications = await withPrisma(async (prisma) => {
       return await prisma.medication.findMany({
-        where: { name: { contains: search, mode: "insensitive" } },
-        select: { id: true, name: true },
-        take: 10, // Limit results for performance
+        where: {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { type: { contains: search, mode: "insensitive" } },
+            { dosage: { contains: search, mode: "insensitive" } },
+            { supplier: { contains: search, mode: "insensitive" } }
+          ]
+        },
+        take: 20, // Limit results for performance
+        orderBy: {
+          name: 'asc'
+        }
       });
     });
 
-    return NextResponse.json(medications);
+    // Convert Decimal fields to number for JSON serialization
+    const plainData = medications.map(item => ({
+      ...item,
+      price: item.price.toNumber()
+    }));
+
+    return NextResponse.json(plainData);
   } catch (error) {
     console.error("Error fetching medications:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

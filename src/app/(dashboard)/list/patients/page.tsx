@@ -1,14 +1,9 @@
 
 import FormModal2 from "@/components/FormModal2"
-import Pagination from "@/components/Paginations"
 import SortButton from "@/components/SortButton"
-import Table from "@/components/Table"
 import TableSeacrh2 from "@/components/TableSearch2"
+import PatientListClient from "@/components/PatientListClient"
 import { withPrisma } from "@/lib/prisma"
-import { ITEM_PER_PAGE } from "@/lib/settings"
-import { Patient, Prisma } from "@prisma/client"
-import Image from "next/image"
-import Link from "next/link"
 
 // type Patient ={
 //     id:number;
@@ -25,124 +20,26 @@ import Link from "next/link"
 
 
 
-//AQUI OS CAMPOS VISIVEIS NA COLUNA DE PACIENTES
-const columns = [
-    {
-        header:"Informação",
-        accessor:"info"
-    },
-    {
-        header:"ID",
-        accessor:"patientId",
-        className:"hidden md:table-cell"
-    },
-    {
-        header:"NIF",
-        accessor:"nif",
-        className:"hidden md:table-cell"
-    },
-    {
-        header:"Estado",
-        accessor:"state",
-        className:"hidden md:table-cell"
-    },
-    {
-        header:"Atendimento",
-        accessor:"attendance",
-        className:"hidden lg:table-cell"
-    },
-    {
-        header:"Telemovel",
-        accessor:"phone",
-        className:"hidden lg:table-cell"
-    },
-    {
-        header:"Cidade",
-        accessor:"city",
-        className:"hidden lg:table-cell"
-    },
-    {
-        header:"Ações",
-        accessor:"action"
-    },
-]
+// Removed columns and renderRow - now handled in PatientListClient component
 
-const renderRow =(item:Patient) => (
-    <tr key={item.id} className="border-b border-gray-200 text-sm text-neutral hover:bg-over hover:cursor-pointer">
-        <td className="flex items-center gap-4 p-4">
-            <div className="flex flex-col">
-                <h3 className="font-bold">{item.name}</h3>
-                <p className="text-sm font-light">{item.email}</p>
-            </div>
-        </td>
-        <td className="hidden md:table-cell">{item.id}</td>
-        <td className="hidden md:table-cell">{item.nif}</td>
-        <td className="hidden md:table-cell">{item.state_type}</td>
-        <td className="hidden md:table-cell">{item.attendance_type}</td>
-        <td className="hidden md:table-cell">{item.mobile_phone}</td>
-        <td className="hidden md:table-cell">{item.city}</td>
-        <td>
-            <div className="flex items-center gap-2">
-                <Link href={`./${item.id}`}>
-                    <button className="w-7 h-7 flex items-center justify-center rounded-full bg-blueLight">
-                        <i className="bi bi-eye"></i>
-                    </button>
-                </Link>
-                    <FormModal2 table="patients" type="delete" id={item.id}/>
-            </div>
-        </td>
-    </tr>
-);
-
-const PatientsListPage = async ({
-    searchParams: initialSearchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | undefined }>;
-}) => {
-    const searchParams = await initialSearchParams;
-    const { page,sort, ...queryParams } = searchParams;
-    const p = page ? parseInt(page) : 1;
-
-    // URL PARAMETROS SEARCH
-    const query: Prisma.PatientWhereInput = {};
-    let orderBy: Prisma.PatientOrderByWithRelationInput = {};
-    if (sort === "name_asc") {
-    orderBy = { name: "asc" };
-    } else if (sort === "name_desc") {
-    orderBy = { name: "desc" };
-    }
-
-
-
-    if (queryParams) {
-        for (const [key, value] of Object.entries(queryParams)) {
-            if (value !== undefined) {
-                switch (key) {
-                    case "search":
-                        const id = parseInt(value);
-                        query.OR = [
-                            ...(isNaN(id) ? [] : [{ id: { equals: id } }]),
-                            { name: { contains: value, mode: "insensitive" } },
-                            { mobile_phone: { contains: value, mode: "insensitive" } }
-                        ];
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
-
-    const [data, count] = await withPrisma(async (prisma) => {
-        return await prisma.$transaction([
-            prisma.patient.findMany({
-                where: query,
-                take: ITEM_PER_PAGE,
-                skip: ITEM_PER_PAGE * (p - 1),
-                orderBy,
-            }),
-            prisma.patient.count({ where: query })
-        ]);
+const PatientsListPage = async () => {
+    // Get initial data for all patients (no search filtering on server)
+    const initialData = await withPrisma(async (prisma) => {
+        return await prisma.patient.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                mobile_phone: true,
+                landline_phone: true,
+                nif: true,
+                state_type: true,
+                attendance_type: true,
+                city: true,
+            },
+            orderBy: { name: "asc" },
+            take: 50, // Load first 50 patients for initial display
+        });
     });
 
     return (
@@ -158,10 +55,8 @@ const PatientsListPage = async ({
                     </div>
                 </div>
             </div>
-            {/* LIST */}
-            <Table columns={columns} renderRow={renderRow} data={data} sort={sort} />
-            {/* PAGINATION */}
-            <Pagination page={p} count={count} />
+            {/* CLIENT-SIDE LIST WITH API SEARCH */}
+            <PatientListClient initialData={initialData} />
         </div>
     );
 };

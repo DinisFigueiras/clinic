@@ -142,6 +142,14 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                                         : "-"}
                                     </span>
                                 </div>
+                                <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                                    <i className="bi bi-telephone-outbound-fill"></i>
+                                    <span>
+                                    {patient.landline_phone
+                                        ? patient.landline_phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3")
+                                        : "-"}
+                                    </span>
+                                </div>
                                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 flex-grow">
                                     <i className="bi bi-house-fill"></i>
                                     <span>{patient.address_line1 + " " + patient.address_line2 + ", " + patient.city + " -" + patient.postal_code || "-"}</span>

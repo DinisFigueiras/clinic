@@ -141,6 +141,7 @@ const PatientForm = ({
                 <InputField label="NIF" inputName="nif" type="number" defaultValue={data?.nif} register={register} error={errors?.nif}/>
                 <InputField label="Nome do Paciente" inputName="name" defaultValue={data?.name} register={register} error={errors?.name} required={true}/>
                 <InputField label="Telemovel" inputName="mobile_phone" type="string" defaultValue={data?.mobile_phone} register={register} error={errors?.mobile_phone}/>
+                <InputField label="Telefone Fixo" inputName="landline_phone" type="string" defaultValue={data?.landline_phone} register={register} error={errors?.landline_phone}/>
                 <InputField label="Cidade" inputName="city" defaultValue={data?.city} register={register} error={errors?.city}/>
                 <InputField label="Codigo Postal" inputName="postal_code" defaultValue={data?.postal_code} register={register} error={errors?.postal_code}/>
                 <InputField label="Morada" inputName="address_line1" defaultValue={data?.address_line1} register={register} error={errors?.address_line1}/>

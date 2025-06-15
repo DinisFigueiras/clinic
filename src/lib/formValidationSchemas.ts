@@ -57,6 +57,10 @@ export const patientschema = z.object({
   .string()
   .optional()
   .refine((val) => !val || val === "" || (val.length === 9 && /^\d+$/.test(val)), { message: "Telemovel inválido (deve ter 9 dígitos)" }),
+    landline_phone: z
+  .string()
+  .optional()
+  .refine((val) => !val || val === "" || (val.length === 9 && /^\d+$/.test(val)), { message: "Telefone fixo inválido (deve ter 9 dígitos)" }),
     nif: z.string().optional().refine((val) => !val || val === "" || (val.length <= 9 && /^\d*$/.test(val)), {
         message: "NIF inválido (máximo 9 dígitos)"
     }),

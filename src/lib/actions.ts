@@ -56,6 +56,7 @@ export const createPatients = async (_currentState:CurrentState,data:Patientsche
                     gender: (data.gender && data.gender.trim() !== "") ? data.gender as "Masculino" | "Feminino" : "Masculino", // Default value
                     date_of_birth: data.date_of_birth || new Date(), // Default to current date if not provided
                     mobile_phone: data.mobile_phone || "000000000", // Default value
+                    landline_phone: data.landline_phone && data.landline_phone.trim() !== "" ? data.landline_phone : null,
                     nif: data.nif && data.nif.trim() !== "" ? data.nif : null,
                     state_type: (data.state_type && data.state_type.trim() !== "") ? data.state_type as "Ativo" | "Reformado" | "Estudante" : "Ativo", // Default value
                     attendance_type: (data.attendance_type && data.attendance_type.trim() !== "") ? data.attendance_type as "Clinica" | "Domicilio" : "Clinica", // Default value
@@ -118,6 +119,7 @@ export const updatePatients = async (_currentState:CurrentState,data:Patientsche
                     gender: (data.gender && data.gender.trim() !== "") ? data.gender as "Masculino" | "Feminino" : "Masculino", // Default value
                     date_of_birth: data.date_of_birth || new Date(), // Default to current date if not provided
                     mobile_phone: data.mobile_phone || "000000000", // Default value
+                    landline_phone: data.landline_phone && data.landline_phone.trim() !== "" ? data.landline_phone : null,
                     nif: data.nif && data.nif.trim() !== "" ? data.nif : null,
                     state_type: (data.state_type && data.state_type.trim() !== "") ? data.state_type as "Ativo" | "Reformado" | "Estudante" : "Ativo", // Default value
                     attendance_type: (data.attendance_type && data.attendance_type.trim() !== "") ? data.attendance_type as "Clinica" | "Domicilio" : "Clinica", // Default value

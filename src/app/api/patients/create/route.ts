@@ -8,21 +8,22 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { 
-      id, 
-      email, 
-      name, 
-      gender, 
-      date_of_birth, 
-      mobile_phone, 
-      nif, 
-      state_type, 
-      attendance_type, 
-      observations, 
-      address_line1, 
-      address_line2, 
-      city, 
-      postal_code 
+    const {
+      id,
+      email,
+      name,
+      gender,
+      date_of_birth,
+      mobile_phone,
+      landline_phone,
+      nif,
+      state_type,
+      attendance_type,
+      observations,
+      address_line1,
+      address_line2,
+      city,
+      postal_code
     } = body;
 
     // Validate required fields
@@ -61,6 +62,7 @@ export async function POST(request: Request) {
           gender: (gender && gender.trim() !== "") ? gender : "Masculino", // Default value
           date_of_birth: date_of_birth ? new Date(date_of_birth) : new Date(), // Default to current date if not provided
           mobile_phone: mobile_phone || "000000000", // Default value
+          landline_phone: landline_phone || null,
           nif: nif || null,
           state_type: (state_type && state_type.trim() !== "") ? state_type : "Ativo", // Default value
           attendance_type: (attendance_type && attendance_type.trim() !== "") ? attendance_type : "Clinica", // Default value

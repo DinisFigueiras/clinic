@@ -19,6 +19,7 @@ model Patient {
   gender          Gender
   date_of_birth   DateTime
   mobile_phone    String
+  landline_phone  String?
   nif             String?           @unique
   state_type      PatientStat
   attendance_type PatientAttendance

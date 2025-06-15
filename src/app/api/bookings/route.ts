@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     const date = searchParams.get("date");
     const patientId = searchParams.get("patientId");
     const futureOnly = searchParams.get("futureOnly");
+    const search = searchParams.get("search");
 
     const data = await withPrisma(async (prisma) => {
       let where: any = {};
