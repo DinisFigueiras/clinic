@@ -66,7 +66,14 @@ const FormModal = ({
 
     useEffect(() => {
       if (state.success) {
-        toast(`Produto apagado!`);
+        const deleteSuccessMessage =
+          table === "patients"
+            ? "Paciente apagado!"
+            : table === "medication"
+            ? "Produto apagado!"
+            : "Marcação apagada!";
+
+        toast(deleteSuccessMessage);
         setOpenState(false); // Close the modal
         setOpen(false); // Close the modal on parent component
         router.refresh();

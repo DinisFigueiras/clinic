@@ -12,15 +12,17 @@ type CurrentState = {success:boolean;error:boolean | string}
 export const createPatients = async (_currentState:CurrentState,data:Patientschema) => {
     try {
         await withPrisma(async (prisma) => {
-            // Check if mobile_phone already exists
-            const existingMobile = await prisma.patient.findFirst({
+            // Check if ID already exists
+            const existingId = await prisma.patient.findFirst({
                 where: {
-                    mobile_phone: data.mobile_phone
+                    id: data.id
                 }
             });
-            if (existingMobile) {
-                throw new Error("O número de telemóvel já existe!");
+            if (existingId) {
+                throw new Error("O ID já existe!");
             }
+
+            // Mobile phone uniqueness check removed - multiple patients can have the same phone number
 
             // Check if email already exists (only if email is provided)
             if (data.email && data.email.trim() !== "") {
@@ -51,17 +53,17 @@ export const createPatients = async (_currentState:CurrentState,data:Patientsche
                     id: data.id,
                     email: data.email && data.email.trim() !== "" ? data.email : null,
                     name: data.name,
-                    gender: data.gender,
-                    date_of_birth: data.date_of_birth,
-                    mobile_phone: data.mobile_phone,
+                    gender: (data.gender && data.gender.trim() !== "") ? data.gender as "Masculino" | "Feminino" : "Masculino", // Default value
+                    date_of_birth: data.date_of_birth || new Date(), // Default to current date if not provided
+                    mobile_phone: data.mobile_phone || "000000000", // Default value
                     nif: data.nif && data.nif.trim() !== "" ? data.nif : null,
-                    state_type: data.state_type,
-                    attendance_type: data.attendance_type,
-                    observations: data.observations,
-                    address_line1: data.address_line1,
-                    address_line2: data.address_line2,
-                    city: data.city,
-                    postal_code: data.postal_code
+                    state_type: (data.state_type && data.state_type.trim() !== "") ? data.state_type as "Ativo" | "Reformado" | "Estudante" : "Ativo", // Default value
+                    attendance_type: (data.attendance_type && data.attendance_type.trim() !== "") ? data.attendance_type as "Clinica" | "Domicilio" : "Clinica", // Default value
+                    observations: data.observations || null,
+                    address_line1: data.address_line1 || "", // Default empty string
+                    address_line2: data.address_line2 || null,
+                    city: data.city || "", // Default empty string
+                    postal_code: data.postal_code || "" // Default empty string
                 },
             });
         });
@@ -77,16 +79,7 @@ export const createPatients = async (_currentState:CurrentState,data:Patientsche
 export const updatePatients = async (_currentState:CurrentState,data:Patientschema) => {
     try {
         await withPrisma(async (prisma) => {
-            // Check if another patient already has this mobile_phone
-            const existingMobile = await prisma.patient.findFirst({
-                where: {
-                    mobile_phone: data.mobile_phone,
-                    id: { not: data.id }
-                }
-            });
-            if (existingMobile) {
-                throw new Error("O número de telemóvel já existe!");
-            }
+            // Mobile phone uniqueness check removed - multiple patients can have the same phone number
 
             // Check for unique email (only if email is provided)
             if (data.email && data.email.trim() !== "") {
@@ -122,17 +115,17 @@ export const updatePatients = async (_currentState:CurrentState,data:Patientsche
                     id: data.id,
                     email: data.email && data.email.trim() !== "" ? data.email : null,
                     name: data.name,
-                    gender: data.gender,
-                    date_of_birth: data.date_of_birth,
-                    mobile_phone: data.mobile_phone,
+                    gender: (data.gender && data.gender.trim() !== "") ? data.gender as "Masculino" | "Feminino" : "Masculino", // Default value
+                    date_of_birth: data.date_of_birth || new Date(), // Default to current date if not provided
+                    mobile_phone: data.mobile_phone || "000000000", // Default value
                     nif: data.nif && data.nif.trim() !== "" ? data.nif : null,
-                    state_type: data.state_type,
-                    attendance_type: data.attendance_type,
-                    observations: data.observations,
-                    address_line1: data.address_line1,
-                    address_line2: data.address_line2,
-                    city: data.city,
-                    postal_code: data.postal_code
+                    state_type: (data.state_type && data.state_type.trim() !== "") ? data.state_type as "Ativo" | "Reformado" | "Estudante" : "Ativo", // Default value
+                    attendance_type: (data.attendance_type && data.attendance_type.trim() !== "") ? data.attendance_type as "Clinica" | "Domicilio" : "Clinica", // Default value
+                    observations: data.observations || null,
+                    address_line1: data.address_line1 || "", // Default empty string
+                    address_line2: data.address_line2 || null,
+                    city: data.city || "", // Default empty string
+                    postal_code: data.postal_code || "" // Default empty string
                 },
             });
         });

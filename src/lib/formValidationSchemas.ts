@@ -4,6 +4,23 @@ import { z } from "zod";
  * Zod validation schemas for form data validation
  */
 
+/**
+ * Check if patient ID already exists in database via API
+ */
+export const checkPatientIdExists = async (id: number): Promise<boolean> => {
+    try {
+        const response = await fetch(`/api/patients/check-id?id=${id}`);
+        if (!response.ok) {
+            throw new Error('Failed to check ID');
+        }
+        const data = await response.json();
+        return data.exists;
+    } catch (error) {
+        console.error("Error checking patient ID:", error);
+        return false;
+    }
+};
+
 // Patient form validation schema
 export const patientschema = z.object({
     id: z.coerce.number().min(1, {message: "Id é obrigatório"}),
@@ -11,13 +28,17 @@ export const patientschema = z.object({
         message: "Email inválido"
     }),
     name: z.string().min(3, { message: 'O nome do paciente têm de conter pelo menos 3 caracteres!' }).max(50, { message: 'O nome do paciente nao pode ter mais de 50 caracteres!' }),
-    gender: z.enum(["Masculino", "Feminino"], {message: "Genero é obrigatório"}),
+    gender: z.string().optional().refine((val) => !val || val === "" || ["Masculino", "Feminino"].includes(val), {
+        message: "Genero inválido"
+    }),
     date_of_birth: z
       .string()
-      .refine((val) => !isNaN(Date.parse(val)), { message: "Data de nascimento é obrigatória" })
-      .transform((val) => new Date(val))
+      .optional()
+      .refine((val) => !val || val === "" || !isNaN(Date.parse(val)), { message: "Data de nascimento inválida" })
+      .transform((val) => val && val !== "" ? new Date(val) : undefined)
       .refine(
         (date) => {
+          if (!date) return true;
           const now = new Date();
           return date <= now;
         },
@@ -25,6 +46,7 @@ export const patientschema = z.object({
       )
       .refine(
         (date) => {
+          if (!date) return true;
           const now = new Date();
           const minDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
           return date <= minDate;
@@ -33,18 +55,22 @@ export const patientschema = z.object({
     ),
    mobile_phone: z
   .string()
-  .length(9, { message: "Telemovel tem de ter maximo de 9 caracters" })
-  .regex(/^\d+$/, { message: "Telemovel inválido" }),
+  .optional()
+  .refine((val) => !val || val === "" || (val.length === 9 && /^\d+$/.test(val)), { message: "Telemovel inválido (deve ter 9 dígitos)" }),
     nif: z.string().optional().refine((val) => !val || val === "" || (val.length <= 9 && /^\d*$/.test(val)), {
         message: "NIF inválido (máximo 9 dígitos)"
     }),
-    state_type: z.enum(["Ativo", "Reformado", "Estudante"], {message: "Este campo é obrigatório"}),
-    attendance_type: z.enum(["Clinica", "Domicilio"], {message: "Este campo é obrigatório"}),
+    state_type: z.string().optional().refine((val) => !val || val === "" || ["Ativo", "Reformado", "Estudante"].includes(val), {
+        message: "Estado inválido"
+    }),
+    attendance_type: z.string().optional().refine((val) => !val || val === "" || ["Clinica", "Domicilio"].includes(val), {
+        message: "Tipo de atendimento inválido"
+    }),
     observations: z.string().optional(),
-    address_line1: z.string().min(1, {message: "Morada é obrigatório!"}),
+    address_line1: z.string().optional(),
     address_line2: z.string().optional(),
-    city: z.string().min(1, {message: "Cidade é obrigatório!"}),
-    postal_code: z.string().min(1, {message: "Código Postal é obrigatório!"})
+    city: z.string().optional(),
+    postal_code: z.string().optional()
   });
 
 export type Patientschema = z.infer<typeof patientschema>;
