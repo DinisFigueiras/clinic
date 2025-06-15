@@ -95,7 +95,6 @@ export default function PatientListClient({ initialData }: { initialData: Patien
 
   const [patients, setPatients] = useState<Patient[]>(initialData);
   const [isSearching, setIsSearching] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
 
   // Client-side filtering for smooth experience
   const filteredPatients = search.trim()
@@ -132,35 +131,22 @@ export default function PatientListClient({ initialData }: { initialData: Patien
     }
   }, [search, page, router, searchParams]);
 
-  // Save scroll position before page changes
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY);
-    };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
-  // Restore scroll position after page changes
-  useEffect(() => {
-    if (scrollPosition > 0) {
-      const timer = setTimeout(() => {
-        window.scrollTo(0, scrollPosition);
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [page, scrollPosition]);
-
-  // Pagination controls with scroll preservation
+  // Pagination controls with smooth scroll to top
   const changePage = (newPage: number) => {
-    // Store current scroll position before navigation
-    setScrollPosition(window.scrollY);
+    // First, smooth scroll to top
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", newPage.toString());
-
-    router.push(`?${params.toString()}`, { scroll: false });
+    // Then navigate after scroll animation starts
+    setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", newPage.toString());
+      router.push(`?${params.toString()}`, { scroll: false });
+    }, 200);
   };
 
   const hasPrev = page > 1;

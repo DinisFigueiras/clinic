@@ -3,7 +3,7 @@ import { withPrisma } from "@/lib/prisma";
 
 /**
  * Bookings API endpoint with filtering support
- * GET /api/bookings?week=true&date=2024-01-01&patientId=1&futureOnly=true
+ * GET /api/bookings?week=true&date=2024-01-01&patientId=1&futureOnly=true&pastOnly=true
  */
 export async function GET(req: NextRequest) {
   try {
@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     const date = searchParams.get("date");
     const patientId = searchParams.get("patientId");
     const futureOnly = searchParams.get("futureOnly");
+    const pastOnly = searchParams.get("pastOnly");
     const search = searchParams.get("search");
 
     const data = await withPrisma(async (prisma) => {
@@ -52,10 +53,14 @@ export async function GET(req: NextRequest) {
         where.booking_StartdateTime = {
           gte: new Date(new Date().setHours(0, 0, 0, 0)),
         };
+      } else if (pastOnly === 'true') {
+        where.booking_StartdateTime = {
+          lt: new Date(new Date().setHours(0, 0, 0, 0)),
+        };
       }
 
       // If no filters are specified and no patientId, return empty array
-      if (!week && !date && !futureOnly && !patientId) {
+      if (!week && !date && !futureOnly && !pastOnly && !patientId) {
         return [];
       }
 
