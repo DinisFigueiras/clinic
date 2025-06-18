@@ -27,7 +27,8 @@ const PatientForm = ({
         formState: { errors },
         setError,
         clearErrors,
-        watch
+        watch,
+        setValue
         } = useForm<Patientschema>({
         resolver: zodResolver(patientschema),
         });
@@ -35,6 +36,10 @@ const PatientForm = ({
     // State for ID validation
     const [isCheckingId, setIsCheckingId] = useState(false);
     const watchedId = watch("id");
+
+    // Watch attendance_type and state_type for real-time value calculation
+    const watchedAttendanceType = watch("attendance_type");
+    const watchedStateType = watch("state_type");
 
     // Form action handler for create/update operations
     const [state, formAction] = useActionState(
@@ -116,6 +121,32 @@ const PatientForm = ({
             return () => clearTimeout(timeoutId);
         }
     }, [watchedId, type, setError, clearErrors]);
+
+    // Real-time value calculation based on attendance_type and state_type
+    useEffect(() => {
+        // Only auto-populate if both fields are selected and it's clinic attendance
+        if (watchedAttendanceType === "Clinica" && watchedStateType) {
+            let calculatedValue: number | null = null;
+
+            // Value: 23.5 if attendance type is clinic and state type is Reformado or Estudante
+            if (watchedStateType === "Reformado" || watchedStateType === "Estudante") {
+                calculatedValue = 23.5;
+            }
+            // Value: 28.5 if attendance type is clinic and state type is Ativo
+            else if (watchedStateType === "Ativo") {
+                calculatedValue = 28.5;
+            }
+
+            // Set the calculated value
+            if (calculatedValue !== null) {
+                setValue("value", calculatedValue);
+            }
+        }
+        // Clear value if attendance is not Clinica
+        else if (watchedAttendanceType === "Domicilio") {
+            setValue("value", null);
+        }
+    }, [watchedAttendanceType, watchedStateType, setValue]);
 
     return(
         <form className="flex flex-col gap-8" onSubmit={onsubmit}>
