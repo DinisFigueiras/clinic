@@ -182,6 +182,18 @@ const PatientForm = ({
                 </div>
                 <InputField label="Data de Nascimento" inputName="date_of_birth" type="date" defaultValue={formatDateForInput(data?.date_of_birth)} register={register} error={errors?.date_of_birth}/>
                 <InputField label="Observações" inputName="observations" type="text" defaultValue={data?.observations} register={register} error={errors?.observations} />
+                <InputField
+                    label="Valor"
+                    inputName="value"
+                    type="number"
+                    defaultValue={data?.value}
+                    register={register}
+                    error={errors?.value}
+                    required={false}
+                    inputProps={{ step: "0.01", min: "0", placeholder: "Ex: 12.30" }}
+                />
+                <InputField label="Profissão" inputName="profession" type="text" defaultValue={data?.profession} register={register} error={errors?.profession} />
+                <InputField label="Família" inputName="family" type="text" defaultValue={data?.family} register={register} error={errors?.family} />
             </div>
             <button className="bg-blue text-white p-2 rounded-md">{type === "create" ? "Criar" : "Editar"}</button>
             

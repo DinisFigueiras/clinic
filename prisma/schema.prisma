@@ -28,6 +28,9 @@ model Patient {
   address_line2   String?
   city            String
   postal_code     String
+  value           Decimal?          // New field: Price/Value (optional)
+  profession      String?           // New field: Profession (optional)
+  family          String?           // New field: Family (optional)
   Bookings        Bookings[]
 
   @@index([name]) // Index for name searches

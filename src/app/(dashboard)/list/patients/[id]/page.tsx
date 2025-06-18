@@ -82,6 +82,12 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
         return notFound();
     }
 
+    // Convert Decimal to number for client component compatibility
+    const serializedPatient = {
+        ...patient,
+        value: patient.value ? parseFloat(patient.value.toString()) : null
+    };
+
     // Group bookings by medication_id
     const bookingsByMedication: {
         [medicationId: number]: { name: string; bookings: { id: number; date: Date }[] }
@@ -115,62 +121,86 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                         </div>
                         <div className="w-2/3 flex-col justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-xl font-bold">{patient.name}</h1>
-                            <FormModal2 table="patients" type="update" data={patient}/>
+                            <h1 className="text-xl font-bold">{serializedPatient.name}</h1>
+                            <FormModal2 table="patients" type="update" data={serializedPatient}/>
                         </div>
                             <p className="text-sm text-neutralLight mb-2">
-                                {patient.observations || "Sem observações."}
+                                {serializedPatient.observations || "Sem observações."}
                             </p>
                             <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                                 {/* NIF - only show if exists */}
-                                {patient.nif && (
+                                {serializedPatient.nif && (
                                     <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                         <i className="bi bi-credit-card-2-front-fill"></i>
-                                        <span>{patient.nif}</span>
+                                        <span>{serializedPatient.nif}</span>
                                     </div>
                                 )}
 
                                 {/* Date of Birth - only show if exists */}
-                                {patient.date_of_birth && (
+                                {serializedPatient.date_of_birth && (
                                     <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                         <i className="bi bi-calendar2-week-fill"></i>
-                                        <span>{new Intl.DateTimeFormat("pt-PT").format(patient.date_of_birth)}</span>
+                                        <span>{new Intl.DateTimeFormat("pt-PT").format(serializedPatient.date_of_birth)}</span>
                                     </div>
                                 )}
 
                                 {/* Email - only show if exists */}
-                                {patient.email && (
+                                {serializedPatient.email && (
                                     <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                         <i className="bi bi-envelope-fill"></i>
-                                        <span>{patient.email}</span>
+                                        <span>{serializedPatient.email}</span>
                                     </div>
                                 )}
 
                                 {/* Mobile Phone - only show if exists */}
-                                {patient.mobile_phone && (
+                                {serializedPatient.mobile_phone && (
                                     <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                         <i className="bi bi-telephone-fill"></i>
-                                        <span>{patient.mobile_phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3")}</span>
+                                        <span>{serializedPatient.mobile_phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3")}</span>
                                     </div>
                                 )}
 
                                 {/* Landline Phone - only show if exists */}
-                                {patient.landline_phone && (
+                                {serializedPatient.landline_phone && (
                                     <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                                         <i className="bi bi-telephone-outbound-fill"></i>
-                                        <span>{patient.landline_phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3")}</span>
+                                        <span>{serializedPatient.landline_phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3")}</span>
+                                    </div>
+                                )}
+
+                                {/* Value - only show if exists */}
+                                {serializedPatient.value && (
+                                    <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                                        <i className="bi bi-cash"></i>
+                                        <span>{serializedPatient.value.toFixed(2)}€</span>
+                                    </div>
+                                )}
+
+                                {/* Profession - only show if exists */}
+                                {serializedPatient.profession && (
+                                    <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                                        <i className="bi bi-briefcase-fill"></i>
+                                        <span>{serializedPatient.profession}</span>
+                                    </div>
+                                )}
+
+                                {/* Family - only show if exists */}
+                                {serializedPatient.family && (
+                                    <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
+                                        <i className="bi bi-people-fill"></i>
+                                        <span>{serializedPatient.family}</span>
                                     </div>
                                 )}
 
                                 {/* Address - only show if any address field exists */}
-                                {(patient.address_line1 || patient.address_line2 || patient.city || patient.postal_code) && (
+                                {(serializedPatient.address_line1 || serializedPatient.address_line2 || serializedPatient.city || serializedPatient.postal_code) && (
                                     <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2 flex-grow">
                                         <i className="bi bi-house-fill"></i>
                                         <span>
                                             {[
-                                                patient.address_line1,
-                                                patient.address_line2,
-                                                patient.city && patient.postal_code ? `${patient.city} -${patient.postal_code}` : patient.city || patient.postal_code
+                                                serializedPatient.address_line1,
+                                                serializedPatient.address_line2,
+                                                serializedPatient.city && serializedPatient.postal_code ? `${serializedPatient.city} -${serializedPatient.postal_code}` : serializedPatient.city || serializedPatient.postal_code
                                             ].filter(Boolean).join(", ")}
                                         </span>
                                     </div>
@@ -181,22 +211,22 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                     {/*SMALL CARDS*/}
                     <div className="flex-1 flex gap-4 justify-between flex-wrap">
                         {/*CARD 1 - Attendance Type - only show if exists*/}
-                        {patient.attendance_type && (
+                        {serializedPatient.attendance_type && (
                             <div className="bg-peachLight p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                                 <Image src="/singleAttendance.png" alt="" width={24} height={24} className="w-6 h-6"/>
                                 <div className="">
-                                   <h1 className="text-xl font-semibold text-neutral">{patient.attendance_type}</h1>
+                                   <h1 className="text-xl font-semibold text-neutral">{serializedPatient.attendance_type}</h1>
                                    <span className="text-sm text-neutralLight font-light">Tipo de Atendimento</span>
                                 </div>
                             </div>
                         )}
 
                         {/*CARD 2 - State Type - only show if exists*/}
-                        {patient.state_type && (
+                        {serializedPatient.state_type && (
                             <div className="bg-peachLight p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
                                 <Image src="/singleBranch.png" alt="" width={24} height={24} className="w-6 h-6"/>
                                 <div className="">
-                                   <h1 className="text-xl font-semibold text-neutral">{patient.state_type}</h1>
+                                   <h1 className="text-xl font-semibold text-neutral">{serializedPatient.state_type}</h1>
                                    <span className="text-sm text-neutralLight font-light">Estado do Paciente</span>
                                 </div>
                             </div>

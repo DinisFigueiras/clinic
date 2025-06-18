@@ -23,7 +23,10 @@ export async function POST(request: Request) {
       address_line1,
       address_line2,
       city,
-      postal_code
+      postal_code,
+      value,
+      profession,
+      family
     } = body;
 
     // Validate required fields
@@ -70,7 +73,10 @@ export async function POST(request: Request) {
           address_line1: address_line1 || "", // Default empty string
           address_line2: address_line2 || null,
           city: city || "", // Default empty string
-          postal_code: postal_code || "" // Default empty string
+          postal_code: postal_code || "", // Default empty string
+          value: value || null, // New field: optional
+          profession: profession && profession.trim() !== "" ? profession : null, // New field: optional
+          family: family && family.trim() !== "" ? family : null // New field: optional
         }
       });
     });

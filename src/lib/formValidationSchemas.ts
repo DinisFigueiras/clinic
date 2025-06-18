@@ -74,7 +74,17 @@ export const patientschema = z.object({
     address_line1: z.string().optional(),
     address_line2: z.string().optional(),
     city: z.string().optional(),
-    postal_code: z.string().optional()
+    postal_code: z.string().optional(),
+    value: z.preprocess(
+        (val) => {
+            if (val === "" || val === null || val === undefined) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? undefined : num;
+        },
+        z.number().min(0, {message: "Valor deve ser 0 ou superior"}).optional()
+    ),
+    profession: z.string().optional(),
+    family: z.string().optional()
   });
 
 export type Patientschema = z.infer<typeof patientschema>;

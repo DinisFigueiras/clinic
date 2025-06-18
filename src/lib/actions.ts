@@ -64,7 +64,10 @@ export const createPatients = async (_currentState:CurrentState,data:Patientsche
                     address_line1: data.address_line1 || "", // Default empty string
                     address_line2: data.address_line2 || null,
                     city: data.city || "", // Default empty string
-                    postal_code: data.postal_code || "" // Default empty string
+                    postal_code: data.postal_code || "", // Default empty string
+                    value: data.value || null, // New field: optional
+                    profession: data.profession && data.profession.trim() !== "" ? data.profession : null, // New field: optional
+                    family: data.family && data.family.trim() !== "" ? data.family : null // New field: optional
                 },
             });
         });
@@ -127,7 +130,10 @@ export const updatePatients = async (_currentState:CurrentState,data:Patientsche
                     address_line1: data.address_line1 || "", // Default empty string
                     address_line2: data.address_line2 || null,
                     city: data.city || "", // Default empty string
-                    postal_code: data.postal_code || "" // Default empty string
+                    postal_code: data.postal_code || "", // Default empty string
+                    value: data.value || null, // New field: optional
+                    profession: data.profession && data.profession.trim() !== "" ? data.profession : null, // New field: optional
+                    family: data.family && data.family.trim() !== "" ? data.family : null // New field: optional
                 },
             });
         });
