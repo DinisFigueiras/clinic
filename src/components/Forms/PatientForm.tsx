@@ -144,7 +144,7 @@ const PatientForm = ({
         }
         // Clear value if attendance is not Clinica
         else if (watchedAttendanceType === "Domicilio") {
-            setValue("value", null);
+            setValue("value", undefined);
         }
     }, [watchedAttendanceType, watchedStateType, setValue]);
 
