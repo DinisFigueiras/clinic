@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
 import Image from "next/image";
 import { format } from "date-fns"; // Import date-fns for formatting dates
@@ -53,11 +53,13 @@ import { useRouter } from "next/navigation";
 const FormModalBookings = ({
   table,
   patients,
-  products
+  products,
+  prefilledPatient
 }: {
   table: string;
   patients: any[];
   products: any[];
+  prefilledPatient?: { id: number; name: string } | null;
 }) => {
   const [open, setOpen] = useState(false); // State to control modal visibility
   const [mode, setMode] = useState<"create" | "delete" | "edit">("create"); // Toggle between create and delete modes
@@ -69,6 +71,7 @@ const FormModalBookings = ({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [bookings, setBookings] = useState<any[]>([]); // State to store bookings for the selected patient
+  const [loadingBookings, setLoadingBookings] = useState(false); // State for loading bookings
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null); // State for the booking to confirm deletion
 
 
@@ -107,22 +110,40 @@ const FormModalBookings = ({
       return;
     }
 
-    const response = await fetch(`/api/bookings/by-patient`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ patientName: selectedPatient.label }),
-    });
+    setLoadingBookings(true);
+    try {
+      const response = await fetch(`/api/bookings/by-patient`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ patientName: selectedPatient.label }),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      setBookings(data);
-    } else {
-      alert("Erro ao tentar ver as marcações deste paciente.");
+      if (response.ok) {
+        const data = await response.json();
+        setBookings(data);
+      } else {
+        alert("Erro ao tentar ver as marcações deste paciente.");
+      }
+    } finally {
+      setLoadingBookings(false);
     }
   };
 
+  // Initialize pre-filled patient if provided
+  useEffect(() => {
+    if (prefilledPatient) {
+      setSelectedPatient({ value: prefilledPatient.id, label: prefilledPatient.name });
+    }
+  }, [prefilledPatient]);
+
+  // Auto-fetch bookings when modal opens in edit or delete mode and patient is selected
+  useEffect(() => {
+    if (open && (mode === "edit" || mode === "delete") && selectedPatient) {
+      fetchBookings();
+    }
+  }, [open, mode, selectedPatient]);
 
   const handleCreate = async () => {
     const response = await fetch(`/api/${table}/create`, {
@@ -204,7 +225,10 @@ const FormModalBookings = ({
   };
 
   const resetSelections = () => {
-    setSelectedPatient(null);
+    // Don't reset selectedPatient if we have a prefilledPatient
+    if (!prefilledPatient) {
+      setSelectedPatient(null);
+    }
     setBookings([]);
     setEditBookingId(null);
     setEditForm(null);
@@ -218,15 +242,22 @@ const FormModalBookings = ({
         className="w-8 h-8 flex items-center justify-center rounded-full bg-blueLight hover:bg-blue transition-colors duration-200"
         onClick={() => setOpen(true)}
       >
-      <Image src="/create.png" alt="Manage Bookings" width={16} height={16} />
+        <i className="bi bi-calendar-check text-white text-sm"></i>
       </button>
 
       {/* Modal overlay and content */}
       {open && (
-        <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white p-4 md:p-6 rounded-lg relative w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Close button */}
+            <button
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+              onClick={() => setOpen(false)}
+            >
+              ×
+            </button>
             <h2 className="text-lg font-semibold text-center text-neutral">
-              {mode === "create" ? "Criar Marcação" : "Apagar Marcação"}
+              {mode === "create" ? "Criar Marcação" : mode === "edit" ? "Editar Marcação" : "Apagar Marcação"}
             </h2>
 
             {/* Mode Toggle */}
@@ -260,9 +291,18 @@ const FormModalBookings = ({
                   <span className="text-red-500 ml-1">*</span>
                 </label>
                 <Select
-                  options={patients.map((p) => ({ value: p.id, label: p.name }))}
-                  onChange={(option) => setSelectedPatient(option as { value: any; label: any })}
+                  options={prefilledPatient
+                    ? [{ value: prefilledPatient.id, label: prefilledPatient.name }]
+                    : patients.map((p) => ({ value: p.id, label: p.name }))
+                  }
+                  value={selectedPatient}
+                  onChange={prefilledPatient ? undefined : (option) => setSelectedPatient(option as { value: any; label: any })}
+                  placeholder="Selecione um paciente..."
+                  isDisabled={!!prefilledPatient}
                 />
+                {prefilledPatient && (
+                  <p className="text-xs text-gray-500 mt-1">Este campo é preenchido automaticamente</p>
+                )}
                 <label className="block text-sm font-medium mt-4">Medicação</label>
                 <Select
                   isMulti
@@ -312,20 +352,23 @@ const FormModalBookings = ({
               <div className="mt-4 text-neutral">
                 <label className="block text-sm font-medium">Escolher Paciente</label>
                 <Select
-                  options={patients.map((p) => ({ value: p.id, label: p.name }))}
-                  onChange={(option) => {
+                  options={prefilledPatient
+                    ? [{ value: prefilledPatient.id, label: prefilledPatient.name }]
+                    : patients.map((p) => ({ value: p.id, label: p.name }))
+                  }
+                  value={selectedPatient}
+                  onChange={prefilledPatient ? undefined : (option) => {
                     setSelectedPatient(option as { value: any; label: any });
                     setBookings([]);
                     setEditBookingId(null);
                     setEditForm(null);
                   }}
+                  placeholder="Selecione um paciente..."
+                  isDisabled={!!prefilledPatient}
                 />
-                <button
-                  className="mt-4 px-4 py-2 bg-blue hover:bg-blueLight transition-colors duration-200 text-white rounded"
-                  onClick={fetchBookings}
-                >
-                  Ver marcações
-                </button>
+                {prefilledPatient && (
+                  <p className="text-xs text-gray-500 mt-1">Este campo é preenchido automaticamente</p>
+                )}
                 {selectedPatient && bookings.length > 0 && !editBookingId && (
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold text-neutralLight">Marcações para {selectedPatient?.label}</h3>
@@ -416,7 +459,13 @@ const FormModalBookings = ({
                     </div>
                   </div>
                 )}
-                {selectedPatient && bookings.length === 0 && (
+                {selectedPatient && loadingBookings && (
+                  <div className="mt-4 flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                    <p className="text-sm text-neutralLight">A carregar marcações...</p>
+                  </div>
+                )}
+                {selectedPatient && !loadingBookings && bookings.length === 0 && (
                   <div className="mt-4">
                     <p className="text-sm text-neutralLight">
                       Este paciente não tem marcações.
@@ -440,19 +489,22 @@ const FormModalBookings = ({
               <div className="mt-4 text-neutral">
                 <label className="block text-sm font-medium">Escolher Paciente</label>
                 <Select
-                  options={patients.map((p) => ({ value: p.id, label: p.name }))}
-                  onChange={(option) => {
+                  options={prefilledPatient
+                    ? [{ value: prefilledPatient.id, label: prefilledPatient.name }]
+                    : patients.map((p) => ({ value: p.id, label: p.name }))
+                  }
+                  value={selectedPatient}
+                  onChange={prefilledPatient ? undefined : (option) => {
                     setSelectedPatient(option as { value: any; label: any });
                     setBookings([]);
-                    setConfirmDeleteId(null); 
+                    setConfirmDeleteId(null);
                   }}
+                  placeholder="Selecione um paciente..."
+                  isDisabled={!!prefilledPatient}
                 />
-                <button
-                  className="mt-4 px-4 py-2 bg-blue hover:bg-blueLight transition-colors duration-200 text-white rounded"
-                  onClick={fetchBookings}
-                >
-                  Ver marcações
-                </button>
+                {prefilledPatient && (
+                  <p className="text-xs text-gray-500 mt-1">Este campo é preenchido automaticamente</p>
+                )}
                 {selectedPatient && bookings.length > 0 ? (
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold text-neutralLight">Marcações para {selectedPatient?.label}</h3>
@@ -473,7 +525,12 @@ const FormModalBookings = ({
                       ))}
                     </ul>
                   </div>
-                ) : selectedPatient && bookings.length === 0 ? (
+                ) : selectedPatient && loadingBookings ? (
+                  <div className="mt-4 flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                    <p className="text-sm text-neutralLight">A carregar marcações...</p>
+                  </div>
+                ) : selectedPatient && !loadingBookings && bookings.length === 0 ? (
                   <div className="mt-4">
                     <p className="text-sm text-neutralLight">
                       Este paciente não tem marcações.
@@ -526,13 +583,7 @@ const FormModalBookings = ({
               </div>
             )}
 
-            {/* Close button */}
-            <div
-              className="absolute top-4 right-4 cursor-pointer"
-              onClick={() => setOpen(false)}
-            >
-              <Image src="/close.png" alt="Close" width={14} height={14} />
-            </div>
+
           </div>
         </div>
       )}

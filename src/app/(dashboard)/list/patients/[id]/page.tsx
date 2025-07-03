@@ -1,6 +1,7 @@
 import BigCalendarContainerPatient from "@/components/BigCalendarContainerPatient"
 import EventCalendarContainerPatientID from "@/components/EventCalendarContainerPatientID"
 import FormModal2 from "@/components/FormModal2"
+import FormModalBookings from "@/components/FormModalBookings"
 import { withPrisma } from "@/lib/prisma"
 import { Patient } from "@prisma/client"
 import Image from "next/image"
@@ -14,20 +15,21 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
         patient,
         pastBookingsCount,
         futureBookingsCount,
-        pastBookingsWithMedication
+        pastBookingsWithMedication,
+        products
     } = await withPrisma(async (prisma) => {
         const patient: Patient | null = await prisma.patient.findUnique({
             where: {id},
         });
 
         if (!patient) {
-            return { patient: null, pastBookingsCount: 0, futureBookingsCount: 0, pastBookingsWithMedication: [] };
+            return { patient: null, pastBookingsCount: 0, futureBookingsCount: 0, pastBookingsWithMedication: [], products: [] };
         }
 
         const today = new Date();
 
         // Use a single transaction to get all data efficiently
-        const [pastBookingsCount, futureBookingsCount, pastBookingsWithMedication] = await prisma.$transaction([
+        const [pastBookingsCount, futureBookingsCount, pastBookingsWithMedication, products] = await prisma.$transaction([
             // Count past bookings
             prisma.bookings.count({
                 where: {
@@ -67,6 +69,16 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                     booking_StartdateTime: "asc",
                 },
                 take: 50 // Limit to last 50 bookings for performance
+            }),
+            // Get medications for booking modal
+            prisma.medication.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                },
+                orderBy: {
+                    name: 'asc'
+                }
             })
         ]);
 
@@ -74,7 +86,8 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
             patient,
             pastBookingsCount,
             futureBookingsCount,
-            pastBookingsWithMedication
+            pastBookingsWithMedication,
+            products
         };
     });
 
@@ -250,6 +263,21 @@ const SinglePatientPage = async ({params}: {params: Promise<{id:string}>}) => {
                             </div>
                         </div>
                     </div>
+                </div>
+                {/*BOOKING MANAGEMENT*/}
+                <div className="mt-4 bg-white rounded-md p-4 text-xs text-gray-500">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-neutral">Gerir Marcações</h2>
+                        <FormModalBookings
+                            table="bookings"
+                            patients={[]} // Empty array since we're using prefilledPatient
+                            products={products}
+                            prefilledPatient={{ id: id, name: serializedPatient.name }}
+                        />
+                    </div>
+                    <p className="text-sm text-neutralLight mt-2">
+                        Clique no ícone para criar, editar ou apagar marcações para {serializedPatient.name}
+                    </p>
                 </div>
                 {/*BOTTOM*/}
                 <div className="mt-4 bg-white rounded-md p-4 h-[800px]">

@@ -118,8 +118,8 @@ const FormModal = ({
 
       {/* Modal overlay and content */}
       {open && (
-        <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-md relative w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%]">
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white p-4 md:p-6 rounded-lg relative w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[90vh] overflow-y-auto">
             <Form />
             {/* Close button */}
             <div className="absolute top-4 right-4 cursor-pointer" onClick={() => setOpenState(false)}>
