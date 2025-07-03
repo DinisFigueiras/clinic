@@ -1,6 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 
+// Utility function to format date in Portuguese timezone (handles summer/winter time automatically)
+const formatDateTimePortugal = (dateString: string) => {
+  const date = new Date(dateString);
+  // Use Intl.DateTimeFormat for proper timezone handling that automatically adjusts for DST
+  const formatter = new Intl.DateTimeFormat("pt-PT", {
+    timeZone: "Europe/Lisbon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(date);
+  const dateStr = `${parts.find(p => p.type === 'day')?.value}/${parts.find(p => p.type === 'month')?.value}/${parts.find(p => p.type === 'year')?.value}`;
+  const timeStr = `${parts.find(p => p.type === 'hour')?.value}:${parts.find(p => p.type === 'minute')?.value}`;
+
+  return {
+    date: dateStr,
+    time: timeStr
+  };
+};
+
 export default function EventList({ dateParam, week = false }: { dateParam?: string; week?: boolean }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,8 +117,10 @@ export default function EventList({ dateParam, week = false }: { dateParam?: str
             <div className="flex items-center justify-between">
               <h1 className="font-semibold text-neutral">{event.patient?.name}</h1>
               <span className="text-neutral font-semibold text-sm">
-                {new Date(event.booking_StartdateTime).toLocaleDateString("pt-PT")}{" "}
-                {new Date(event.booking_StartdateTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", hour12: false })}
+                {(() => {
+                  const formatted = formatDateTimePortugal(event.booking_StartdateTime);
+                  return `${formatted.date} ${formatted.time}`;
+                })()}
               </span>
             </div>
             <p className={`text-sm mt-2 font-semibold ${event.attendance_type === "Domicilio" ? "text-peach" : "text-blue"}`}>

@@ -4,6 +4,49 @@ import { useState } from "react";
 import Select from "react-select";
 import Image from "next/image";
 import { format } from "date-fns"; // Import date-fns for formatting dates
+
+// Utility function to format date in Portuguese timezone (handles summer/winter time automatically)
+const formatDateTimePortugal = (dateString: string) => {
+  const date = new Date(dateString);
+  // Use Intl.DateTimeFormat for proper timezone handling that automatically adjusts for DST
+  const formatter = new Intl.DateTimeFormat("pt-PT", {
+    timeZone: "Europe/Lisbon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+
+  const parts = formatter.formatToParts(date);
+  const dateStr = `${parts.find(p => p.type === 'day')?.value}/${parts.find(p => p.type === 'month')?.value}/${parts.find(p => p.type === 'year')?.value}`;
+  const timeStr = `${parts.find(p => p.type === 'hour')?.value}:${parts.find(p => p.type === 'minute')?.value}`;
+
+  return {
+    dateTime: `${dateStr} ${timeStr}`,
+    time: timeStr
+  };
+};
+
+// Utility function to format datetime for datetime-local input (handles timezone properly)
+const formatForDateTimeLocal = (dateString: string) => {
+  const date = new Date(dateString);
+  // Use Intl.DateTimeFormat for proper timezone handling that automatically adjusts for DST
+  const formatter = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Lisbon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+
+  // Format as YYYY-MM-DDTHH:mm for datetime-local input
+  const formatted = formatter.format(date);
+  return formatted.replace(' ', 'T');
+};
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -50,8 +93,8 @@ const FormModalBookings = ({
       setEditForm({
         selectedMedications,
         attendance_type: booking.attendance_type,
-        booking_StartdateTime: booking.booking_StartdateTime.slice(0, 16),
-        booking_EnddateTime: booking.booking_EnddateTime.slice(0, 16),
+        booking_StartdateTime: formatForDateTimeLocal(booking.booking_StartdateTime),
+        booking_EnddateTime: formatForDateTimeLocal(booking.booking_EnddateTime),
       });
       setEditBookingId(bookingId);
     }
@@ -290,8 +333,11 @@ const FormModalBookings = ({
                       {bookings.map((booking) => (
                         <li key={booking.id} className="flex justify-between items-center border-b py-2">
                           <span className="text-sm text-neutral">
-                            {format(new Date(booking.booking_StartdateTime), "dd/MM/yyyy HH:mm")} -{" "}
-                            {format(new Date(booking.booking_EnddateTime), "HH:mm")}
+                            {(() => {
+                              const startFormatted = formatDateTimePortugal(booking.booking_StartdateTime);
+                              const endFormatted = formatDateTimePortugal(booking.booking_EnddateTime);
+                              return `${startFormatted.dateTime} - ${endFormatted.time}`;
+                            })()}
                           </span>
                           <button
                             className="px-2 py-1 bg-peach hover:bg-peachLight transition-colors duration-200 text-white rounded"

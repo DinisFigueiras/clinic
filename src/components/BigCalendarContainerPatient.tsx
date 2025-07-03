@@ -27,8 +27,8 @@ const BigCalendarContainerPatient = async ({ patientId }: { patientId: number })
   const calendarEvents = dataRes.map(booking => ({
     id: booking.id,
     title: booking.patient.name,
-    start: moment(booking.booking_StartdateTime).format('YYYY-MM-DD HH:mm'),
-    end: moment(booking.booking_EnddateTime).format('YYYY-MM-DD HH:mm'),
+    start: moment(booking.booking_StartdateTime).tz('Europe/Lisbon').format('YYYY-MM-DD HH:mm'),
+    end: moment(booking.booking_EnddateTime).tz('Europe/Lisbon').format('YYYY-MM-DD HH:mm'),
     state: booking.attendance_type
   }));
 

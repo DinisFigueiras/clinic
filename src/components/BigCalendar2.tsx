@@ -37,6 +37,17 @@ const config = {
 }
 
 /**
+ * Get Portugal timezone offset in minutes (handles summer/winter time automatically)
+ */
+const getPortugalTimezoneOffset = () => {
+  const now = new Date();
+  const utc = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+  const portugalTime = new Date(utc.toLocaleString("en-US", {timeZone: "Europe/Lisbon"}));
+  const offset = (portugalTime.getTime() - utc.getTime()) / (1000 * 60);
+  return offset;
+};
+
+/**
  * Main calendar component using ScheduleX
  */
 const CalendarApp = ({ data }: { data: Event[] }) => {
@@ -48,7 +59,7 @@ const CalendarApp = ({ data }: { data: Event[] }) => {
     createEventModalPlugin(),
     createCurrentTimePlugin({
       fullWeekWidth: true,
-      timeZoneOffset: 0
+      timeZoneOffset: getPortugalTimezoneOffset() // Dynamic Portugal timezone offset
     })
   ]
 
