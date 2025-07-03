@@ -26,11 +26,23 @@ export async function GET(req: NextRequest) {
 
       if (week) {
         const now = new Date();
-        const weekEnd = new Date(now);
-        weekEnd.setDate(now.getDate() + 7);
+
+        // Calculate the start of the current week (Monday)
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days to Monday
+
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - daysFromMonday);
+        weekStart.setHours(0, 0, 0, 0);
+
+        // Calculate the end of the current week (Sunday)
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6); // Monday + 6 days = Sunday
+        weekEnd.setHours(23, 59, 59, 999);
+
         where.booking_StartdateTime = {
-          gte: new Date(now.setHours(0, 0, 0, 0)),
-          lte: new Date(weekEnd.setHours(23, 59, 59, 999)),
+          gte: weekStart,
+          lte: weekEnd,
         };
       } else if (date) {
         // Handle date string in YYYY-MM-DD format for Portuguese timezone

@@ -23,11 +23,21 @@ export default function EventCalendarContainerClient({ initialDate }: { initialD
     const dateObj = new Date(selectedDate);
     label = `Marcações para dia ${dateObj.toLocaleDateString("pt-PT")}`;
   } else {
-    // Calculate first and last day of the week (today and today+6)
+    // Calculate first and last day of the current week (Monday to Sunday)
     const today = new Date();
-    const firstDay = new Date(today.setHours(0, 0, 0, 0));
+
+    // Calculate the start of the current week (Monday)
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days to Monday
+
+    const firstDay = new Date(today);
+    firstDay.setDate(today.getDate() - daysFromMonday);
+    firstDay.setHours(0, 0, 0, 0);
+
+    // Calculate the end of the current week (Sunday)
     const lastDay = new Date(firstDay);
-    lastDay.setDate(firstDay.getDate() + 6);
+    lastDay.setDate(firstDay.getDate() + 6); // Monday + 6 days = Sunday
+
     const format = (d: Date) =>
       d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit" });
     label = `Marcações para a semana de ${format(firstDay)} a ${format(lastDay)}`;
