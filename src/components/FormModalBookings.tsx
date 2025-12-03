@@ -47,6 +47,79 @@ const formatForDateTimeLocal = (dateString: string) => {
   const formatted = formatter.format(date);
   return formatted.replace(' ', 'T');
 };
+
+// Helper function to convert datetime-local to UTC ISO string properly
+// Handles Europe/Lisbon timezone with DST support
+const convertToUTCISO = (datetimeLocalString: string): string => {
+  if (!datetimeLocalString || datetimeLocalString.trim() === "") {
+    throw new Error("Data e hora são obrigatórias!");
+  }
+
+  // datetime-local format: "2025-06-10T08:00"
+  // This represents LOCAL time in Portugal (Europe/Lisbon timezone)
+  
+  // Split on T to get date and time parts
+  const [datePart, timePart] = datetimeLocalString.split('T');
+  
+  if (!datePart || !timePart) {
+    throw new Error("Formato de data/hora inválido!");
+  }
+
+  // Parse date: YYYY-MM-DD
+  const [year, month, day] = datePart.split('-').map(Number);
+  
+  // Parse time: HH:mm (with optional :ss)
+  const timeParts = timePart.split(':').map(Number);
+  const hour = timeParts[0] || 0;
+  const minute = timeParts[1] || 0;
+  const second = timeParts[2] || 0;
+
+  // Validate the parsed values
+  if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hour) || isNaN(minute)) {
+    throw new Error("Formato de data/hora inválido!");
+  }
+
+  // To get Portugal's UTC offset for a specific date, we use a trick:
+  // Create a date, format it in both UTC and Portugal timezone, then calculate offset
+  const testDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  
+  // Format in Portugal timezone to see what it looks like there
+  const portugueseFormatter = new Intl.DateTimeFormat("pt-PT", {
+    timeZone: "Europe/Lisbon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+  
+  const portugueseTime = portugueseFormatter.format(testDate);
+  const [pYear, pMonth, pDay, pHour, pMinute, pSecond] = portugueseTime.split(/[-/\s:]/);
+  
+  // If the Portugal-formatted version doesn't match what we input, calculate the offset
+  const inputHour = hour;
+  const inputMinute = minute;
+  const portugueseHour = parseInt(pHour);
+  const portugueseMinute = parseInt(pMinute);
+  
+  // The offset tells us how many hours Portugal is ahead of UTC
+  // offset = Portugal time - UTC time
+  // We started with UTC, so: offset = formatted_hour - UTC_hour
+  const offsetHours = portugueseHour - inputHour;
+  
+  // Now apply the offset to get the true UTC time
+  // If input is 08:00 and offset is +1, then UTC is 08:00 - 1 = 07:00
+  const trueUTCDate = new Date(Date.UTC(year, month - 1, day, hour - offsetHours, minute, second));
+  
+  if (isNaN(trueUTCDate.getTime())) {
+    throw new Error("Data inválida!");
+  }
+
+  return trueUTCDate.toISOString();
+};
+
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -61,6 +134,8 @@ const FormModalBookings = ({
   products: any[];
   prefilledPatient?: { id: number; name: string } | null;
 }) => {
+  const router = useRouter();
+  
   const [open, setOpen] = useState(false); // State to control modal visibility
   const [mode, setMode] = useState<"create" | "delete" | "edit">("create"); // Toggle between create and delete modes
   const [editBookingId, setEditBookingId] = useState<number | null>(null);
@@ -73,9 +148,6 @@ const FormModalBookings = ({
   const [bookings, setBookings] = useState<any[]>([]); // State to store bookings for the selected patient
   const [loadingBookings, setLoadingBookings] = useState(false); // State for loading bookings
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null); // State for the booking to confirm deletion
-
-
-  const router = useRouter();
 
   const attendanceOptions = [
     { value: "Clinica", label: "Clínica" },
@@ -146,27 +218,52 @@ const FormModalBookings = ({
   }, [open, mode, selectedPatient]);
 
   const handleCreate = async () => {
-    const response = await fetch(`/api/${table}/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        patient_id: selectedPatient?.value,
-        medication_ids: selectedProducts.map(p => p.value),
-        attendance_type: attendanceType?.value,
-        booking_StartdateTime: startDate,
-        booking_EnddateTime: endDate,
-      }),
-    });
+    // Validate required fields
+    if (!selectedPatient) {
+      toast("Selecione um paciente!", { type: "error", autoClose: 2000 });
+      return;
+    }
+    if (!attendanceType) {
+      toast("Selecione o tipo de atendimento!", { type: "error", autoClose: 2000 });
+      return;
+    }
+    if (!startDate || !endDate) {
+      toast("Selecione data e hora!", { type: "error", autoClose: 2000 });
+      return;
+    }
 
-    if (response.ok) {
-      toast("Marcação Criada com sucesso!",
-        {type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true}
-      );
-      setOpen(false); // Close the modal
-    } else {
-      alert("Ocorreu um erro.");
+    try {
+      // Convert dates using the timezone conversion function
+      const startISO = convertToUTCISO(startDate);
+      const endISO = convertToUTCISO(endDate);
+
+      const response = await fetch(`/api/${table}/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          patient_id: selectedPatient?.value,
+          medication_ids: selectedProducts.map(p => p.value),
+          attendance_type: attendanceType?.value,
+          booking_StartdateTime: startISO,
+          booking_EnddateTime: endISO,
+        }),
+      });
+
+      if (response.ok) {
+        toast("Marcação Criada com sucesso!",
+          {type: "success", autoClose: 2000, pauseOnHover: false, closeOnClick: true}
+        );
+        setOpen(false); // Close the modal
+        router.refresh(); // Refresh the page to show the new booking
+      } else {
+        const errorData = await response.json();
+        toast(errorData.error || "Ocorreu um erro.", { type: "error", autoClose: 2000 });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Ocorreu um erro ao criar a marcação.";
+      toast(message, { type: "error", autoClose: 2000 });
     }
   };
 
@@ -175,52 +272,65 @@ const FormModalBookings = ({
   const handleDelete = async () => {
     if (!confirmDeleteId) return;
 
-    const response = await fetch(`/api/${table}/delete`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: confirmDeleteId }),
-    });
+    try {
+      const response = await fetch(`/api/${table}/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: confirmDeleteId }),
+      });
 
-    if (response.ok) {
-      toast(`Marcação apagada com sucesso!`,
-        { type: "error", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
-      );
-      setBookings((prev) => prev.filter((booking) => booking.id !== confirmDeleteId)); // Remove the deleted booking from the list
-      setConfirmDeleteId(null); // Reset confirmation state
-      
-    } else {
-      alert("Ocorreu um erro.");
+      if (response.ok) {
+        toast(`Marcação apagada com sucesso!`,
+          { type: "error", autoClose: 2000, pauseOnHover: false, closeOnClick: true }
+        );
+        setBookings((prev) => prev.filter((booking) => booking.id !== confirmDeleteId)); // Remove the deleted booking from the list
+        setConfirmDeleteId(null); // Reset confirmation state
+        router.refresh(); // Refresh the page to show the updated bookings
+      } else {
+        const errorData = await response.json();
+        toast(errorData.error || "Ocorreu um erro ao apagar.", { type: "error", autoClose: 2000 });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Ocorreu um erro ao apagar a marcação.";
+      toast(message, { type: "error", autoClose: 2000 });
     }
   };
 
   const handleEdit = async () => {
     if (!editBookingId || !editForm) return;
 
-    // Convert to ISO string if not already
-    const startISO = new Date(editForm.booking_StartdateTime).toISOString();
-    const endISO = new Date(editForm.booking_EnddateTime).toISOString();
+    try {
+      // Convert to ISO string using proper timezone handling
+      const startISO = convertToUTCISO(editForm.booking_StartdateTime);
+      const endISO = convertToUTCISO(editForm.booking_EnddateTime);
 
-    const response = await fetch(`/api/${table}/update`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: editBookingId,
-        medication_ids: editForm.selectedMedications?.map((m: any) => m.value) || [],
-        attendance_type: editForm.attendance_type,
-        booking_StartdateTime: startISO,
-        booking_EnddateTime: endISO,
-      }),
-    });
-    if (response.ok) {
-      toast("Marcação atualizada com sucesso!", { type: "success", autoClose: 2000 });
-      // Refresh the bookings to get updated data
-      fetchBookings();
-      setEditBookingId(null);
-      setEditForm(null);
-    } else {
-      alert("Ocorreu um erro ao atualizar.");
+      const response = await fetch(`/api/${table}/update`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editBookingId,
+          medication_ids: editForm.selectedMedications?.map((m: any) => m.value) || [],
+          attendance_type: editForm.attendance_type,
+          booking_StartdateTime: startISO,
+          booking_EnddateTime: endISO,
+        }),
+      });
+      if (response.ok) {
+        toast("Marcação atualizada com sucesso!", { type: "success", autoClose: 2000 });
+        // Refresh the bookings to get updated data
+        fetchBookings();
+        setEditBookingId(null);
+        setEditForm(null);
+        router.refresh(); // Refresh the page to show the updated booking
+      } else {
+        const errorData = await response.json();
+        toast(errorData.error || "Ocorreu um erro ao atualizar.", { type: "error", autoClose: 2000 });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Ocorreu um erro ao atualizar a marcação.";
+      toast(message, { type: "error", autoClose: 2000 });
     }
   };
 
