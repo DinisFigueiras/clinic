@@ -120,6 +120,14 @@ const convertToUTCISO = (datetimeLocalString: string): string => {
   return trueUTCDate.toISOString();
 };
 
+// Helper function to format attendance type with "Novo Paciente" label if it's a first booking
+const formatAttendanceType = (attendanceType: string, isFirstBooking: boolean): string => {
+  if (!isFirstBooking) {
+    return attendanceType === "Clinica" ? "Clínica" : "Domicílio";
+  }
+  return attendanceType === "Clinica" ? "Clínica - Novo Paciente" : "Domicílio - Novo Paciente";
+};
+
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -148,11 +156,10 @@ const FormModalBookings = ({
   const [bookings, setBookings] = useState<any[]>([]); // State to store bookings for the selected patient
   const [loadingBookings, setLoadingBookings] = useState(false); // State for loading bookings
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null); // State for the booking to confirm deletion
-
-  const attendanceOptions = [
+  const [attendanceOptions, setAttendanceOptions] = useState<{ value: string; label: string }[]>([
     { value: "Clinica", label: "Clínica" },
     { value: "Domicilio", label: "Domicílio" },
-  ];
+  ]); // Dynamic attendance options
 
 
   // Fetch booking details for editing
@@ -195,6 +202,20 @@ const FormModalBookings = ({
       if (response.ok) {
         const data = await response.json();
         setBookings(data);
+        
+        // Update attendance options based on whether patient has existing bookings
+        const isNewPatient = data.length === 0;
+        if (isNewPatient) {
+          setAttendanceOptions([
+            { value: "Clinica", label: "Clínica - Novo Paciente" },
+            { value: "Domicilio", label: "Domicílio - Novo Paciente" },
+          ]);
+        } else {
+          setAttendanceOptions([
+            { value: "Clinica", label: "Clínica" },
+            { value: "Domicilio", label: "Domicílio" },
+          ]);
+        }
       } else {
         alert("Erro ao tentar ver as marcações deste paciente.");
       }
@@ -216,6 +237,13 @@ const FormModalBookings = ({
       fetchBookings();
     }
   }, [open, mode, selectedPatient]);
+
+  // Fetch bookings when patient is selected in CREATE mode to show "Novo Paciente" label
+  useEffect(() => {
+    if (mode === "create" && selectedPatient) {
+      fetchBookings();
+    }
+  }, [selectedPatient, mode]);
 
   const handleCreate = async () => {
     // Validate required fields
@@ -619,20 +647,29 @@ const FormModalBookings = ({
                   <div className="mt-4">
                     <h3 className="text-sm font-semibold text-neutralLight">Marcações para {selectedPatient?.label}</h3>
                     <ul className="mt-2">
-                      {bookings.map((booking) => (
-                        <li key={booking.id} className="flex justify-between items-center border-b py-2">
-                          <span className="text-sm text-neutral">
-                            {format(new Date(booking.booking_StartdateTime), "dd/MM/yyyy HH:mm")} -{" "}
-                            {format(new Date(booking.booking_EnddateTime), "HH:mm")}
-                          </span>
-                          <button
-                            className="px-2 py-1 bg-red-600 hover:bg-red-400 transition-colors duration-200 text-white rounded"
-                            onClick={() => setConfirmDeleteId(booking.id)}
-                          >
-                            Apagar
-                          </button>
-                        </li>
-                      ))}
+                      {bookings.map((booking) => {
+                        // Find the first booking ever created (lowest id = first created)
+                        const firstBooking = bookings.reduce((first, current) => {
+                          return current.id < first.id ? current : first;
+                        });
+                        const isFirstBooking = booking.id === firstBooking.id;
+                        
+                        return (
+                          <li key={booking.id} className="flex justify-between items-center border-b py-2">
+                            <div className="flex flex-col text-sm text-neutral">
+                              <span>{format(new Date(booking.booking_StartdateTime), "dd/MM/yyyy HH:mm")} -{" "}
+                              {format(new Date(booking.booking_EnddateTime), "HH:mm")}</span>
+                              <span className="text-xs text-gray-500">{formatAttendanceType(booking.attendance_type, isFirstBooking)}</span>
+                            </div>
+                            <button
+                              className="px-2 py-1 bg-red-600 hover:bg-red-400 transition-colors duration-200 text-white rounded"
+                              onClick={() => setConfirmDeleteId(booking.id)}
+                            >
+                              Apagar
+                            </button>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 ) : selectedPatient && loadingBookings ? (

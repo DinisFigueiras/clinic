@@ -25,6 +25,14 @@ const formatDateTimePortugal = (dateString: string) => {
   };
 };
 
+// Helper function to format attendance type with "Novo Paciente" label if it's a first booking
+const formatAttendanceType = (attendanceType: string, isFirstBooking: boolean): string => {
+  if (!isFirstBooking) {
+    return attendanceType === "Clinica" ? "Clínica" : "Domicílio";
+  }
+  return attendanceType === "Clinica" ? "Clínica - Novo Paciente" : "Domicílio - Novo Paciente";
+};
+
 interface Booking {
     id: number;
     booking_StartdateTime: string;
@@ -130,13 +138,19 @@ const EventListPatientID = ({
                     Nenhuma marcação encontrada
                 </div>
             ) : (
-                data.map((event) => {
+                data.map((event, index) => {
                     const eventDate = new Date(event.booking_StartdateTime);
 
                     // Check if this booking has medications (current booking)
                     const currentBookingMedication = event.bookingMedications && event.bookingMedications.length > 0
                         ? event.bookingMedications[event.bookingMedications.length - 1].medication
                         : null;
+
+                    // Find the first booking ever created (lowest id = first created)
+                    const firstBooking = data.reduce((first, current) => {
+                        return current.id < first.id ? current : first;
+                    });
+                    const isFirstBooking = event.id === firstBooking.id;
 
                     return (
                         <div className="p-5 rounded-md border-2 border-neutral border-t-4" key={event.id}>
@@ -154,7 +168,7 @@ const EventListPatientID = ({
                                     event.attendance_type === "Domicilio" ? "text-peach" : "text-blue"
                                 }`}
                             >
-                                {event.attendance_type}
+                                {formatAttendanceType(event.attendance_type, isFirstBooking)}
                             </p>
 
                             {/* Show medication info */}

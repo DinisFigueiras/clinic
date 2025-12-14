@@ -128,13 +128,13 @@ const PatientForm = ({
         if (watchedAttendanceType === "Clinica" && watchedStateType) {
             let calculatedValue: number | null = null;
 
-            // Value: 23.5 if attendance type is clinic and state type is Reformado or Estudante
+            // Value: 24.00 if attendance type is clinic and state type is Reformado or Estudante
             if (watchedStateType === "Reformado" || watchedStateType === "Estudante") {
-                calculatedValue = 23.5;
+                calculatedValue = 24.0;
             }
-            // Value: 28.5 if attendance type is clinic and state type is Ativo
+            // Value: 29.00 if attendance type is clinic and state type is Ativo
             else if (watchedStateType === "Ativo") {
-                calculatedValue = 28.5;
+                calculatedValue = 29.0;
             }
 
             // Set the calculated value
